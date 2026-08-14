@@ -1,0 +1,14 @@
+{
+  "sidebar": {
+    "map": "Project Map",
+    "features": "Feature List",
+    "qa": "Project Q&A",
+    "team": "Team Settings",
+    "settings": "Settings"
+  },
+  "header": {
+    "lastSynced": "Last synced: {{time}}",
+    "notification": "Notification",
+    "logout": "Log out"
+  }
+}

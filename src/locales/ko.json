@@ -1,0 +1,14 @@
+{
+  "sidebar": {
+    "map": "프로젝트 지도",
+    "features": "기능 목록",
+    "qa": "프로젝트 Q&A",
+    "team": "팀 설정",
+    "settings": "환경 설정"
+  },
+  "header": {
+    "lastSynced": "마지막 동기화: {{time}}",
+    "notification": "알림",
+    "logout": "로그아웃"
+  }
+}

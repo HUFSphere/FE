@@ -1,0 +1,132 @@
+<svg width="960" height="620" viewBox="0 0 960 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+  <linearGradient id="fadeDown" gradientUnits="userSpaceOnUse" x1="660" y1="40" x2="660" y2="200">
+    <stop offset="0" stop-color="#6B5A4C"/>
+    <stop offset="1" stop-color="#A8957F" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="fadeRight" gradientUnits="userSpaceOnUse" x1="710" y1="80" x2="880" y2="80">
+    <stop offset="0" stop-color="#A8957F"/>
+    <stop offset="1" stop-color="#A8957F" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="fadeUp" gradientUnits="userSpaceOnUse" x1="780" y1="424" x2="780" y2="540">
+    <stop offset="0" stop-color="#6B5A4C"/>
+    <stop offset="1" stop-color="#A8957F" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="glow">
+    <stop offset="0" stop-color="#A8957F" stop-opacity="0.55"/>
+    <stop offset="0.55" stop-color="#A8957F" stop-opacity="0.22"/>
+    <stop offset="1" stop-color="#A8957F" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+
+<!-- ============ 01 · 노드 4종 ============ -->
+<g id="노드-강조">
+  <circle cx="70" cy="80" r="24" fill="#6B5A4C"/>
+  <circle cx="70" cy="80" r="7.5" fill="#F1E7D6"/>
+</g>
+<g id="노드-기본">
+  <circle cx="150" cy="80" r="15" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.4"/>
+  <circle cx="150" cy="80" r="5" fill="#A8957F"/>
+</g>
+<g id="노드-소">
+  <circle cx="212" cy="80" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="212" cy="80" r="3" fill="#A8957F"/>
+</g>
+<g id="노드-점">
+  <circle cx="258" cy="80" r="4" fill="#A8957F"/>
+</g>
+
+<!-- ============ 02 · 곁가지 우 ============ -->
+<g id="곁가지-우">
+  <path d="M340 118 C 340 90, 376 92, 396 76" stroke="#A8957F" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="396" cy="76" r="15" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.4"/>
+  <circle cx="396" cy="76" r="5" fill="#A8957F"/>
+</g>
+
+<!-- ============ 03 · 곁가지 좌 ============ -->
+<g id="곁가지-좌">
+  <path d="M560 118 C 560 90, 524 92, 504 76" stroke="#A8957F" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="504" cy="76" r="15" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.4"/>
+  <circle cx="504" cy="76" r="5" fill="#A8957F"/>
+</g>
+
+<!-- ============ 04 · 줄기 세로 (아래로 사라짐) ============ -->
+<g id="줄기-세로">
+  <path d="M660 40 V 200" stroke="url(#fadeDown)" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="660" cy="40" r="5" fill="#6B5A4C"/>
+</g>
+
+<!-- ============ 05 · 줄기 가로 (오른쪽으로 사라짐) ============ -->
+<g id="줄기-가로">
+  <path d="M710 80 H 880" stroke="url(#fadeRight)" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="710" cy="80" r="5" fill="#A8957F"/>
+</g>
+
+<!-- ============ 06 · 3점 체인 (로고 모티프) ============ -->
+<g id="체인-3점">
+  <path d="M60 300 L 100 262 L 140 224" stroke="#C4B49E" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="60" cy="300" r="7" fill="#C4B49E"/>
+  <circle cx="140" cy="224" r="7" fill="#C4B49E"/>
+  <circle cx="100" cy="262" r="11" fill="#6B5A4C"/>
+</g>
+
+<!-- ============ 07 · 코너 가지 (좌상단용) ============ -->
+<g id="코너가지-좌상">
+  <path d="M230 210 C 268 210, 288 232, 300 258 C 312 284, 336 296, 372 296" stroke="#A8957F" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M300 258 C 302 232, 322 222, 348 220" stroke="#C4B49E" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="348" cy="220" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="348" cy="220" r="3" fill="#A8957F"/>
+  <circle cx="372" cy="296" r="13" fill="#6B5A4C"/>
+  <circle cx="372" cy="296" r="4.5" fill="#F1E7D6"/>
+</g>
+
+<!-- ============ 08 · 코너 가지 (우하단용) ============ -->
+<g id="코너가지-우하">
+  <path d="M700 296 C 662 296, 642 274, 630 248 C 618 222, 594 210, 558 210" stroke="#A8957F" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M630 248 C 628 274, 608 284, 582 286" stroke="#C4B49E" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="582" cy="286" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="582" cy="286" r="3" fill="#A8957F"/>
+  <circle cx="558" cy="210" r="13" fill="#6B5A4C"/>
+  <circle cx="558" cy="210" r="4.5" fill="#F1E7D6"/>
+</g>
+
+<!-- ============ 09 · 점선 연결 ============ -->
+<g id="점선-연결">
+  <path d="M760 230 C 800 230, 820 262, 860 262" stroke="#A8957F" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 7"/>
+  <circle cx="760" cy="230" r="4" fill="#A8957F"/>
+  <circle cx="860" cy="262" r="4" fill="#A8957F"/>
+</g>
+
+<!-- ============ 10 · 번짐 원 (배경 깔개) ============ -->
+<g id="번짐-원-대">
+  <circle cx="130" cy="470" r="98" fill="url(#glow)"/>
+</g>
+<g id="번짐-원-소">
+  <circle cx="300" cy="470" r="54" fill="url(#glow)"/>
+</g>
+
+<!-- ============ 11 · 노드 흩뿌림 ============ -->
+<g id="노드-흩뿌림">
+  <circle cx="420" cy="420" r="4" fill="#A8957F" opacity="0.8"/>
+  <circle cx="486" cy="452" r="6.5" fill="#C4B49E"/>
+  <circle cx="452" cy="500" r="3" fill="#A8957F" opacity="0.6"/>
+  <circle cx="524" cy="410" r="3.5" fill="#A8957F" opacity="0.5"/>
+  <circle cx="546" cy="486" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="546" cy="486" r="3" fill="#A8957F"/>
+</g>
+
+<!-- ============ 12 · 가지 미니 (원본 축약) ============ -->
+<g id="가지-미니">
+  <path d="M780 540 V 424" stroke="url(#fadeUp)" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M780 496 C 780 472, 754 472, 740 458" stroke="#A8957F" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M780 470 C 780 446, 806 448, 820 434" stroke="#A8957F" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="740" cy="458" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="740" cy="458" r="3" fill="#A8957F"/>
+  <circle cx="820" cy="434" r="9" fill="#F8F4ED" stroke="#C4B49E" stroke-width="1.2"/>
+  <circle cx="820" cy="434" r="3" fill="#A8957F"/>
+  <circle cx="780" cy="424" r="14" fill="#6B5A4C"/>
+  <circle cx="780" cy="424" r="4.5" fill="#F1E7D6"/>
+</g>
+
+</svg>

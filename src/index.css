@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+  --color-milk: #FBF7F4;
+  --color-oat: #E5DED2;
+  --color-almond-milk: #D2C9BB;
+  --color-taupe: #A39382;
+  --color-mocha: #685D54;
+  --color-dark-lava: #493E37;
+  --color-charcoal: #232323;
+}
