@@ -9,6 +9,7 @@ import Language from './pages/OnBoarding/Language'
 import Role from './pages/OnBoarding/Role'
 import InviteCode from './pages/OnBoarding/InviteCode'
 import ProjectConnect from './pages/OnBoarding/ProjectConnect'
+import NotFound from './pages/NotFound'
 
 // 메인
 import ProjectMap from './pages/Main/ProjectMap'
@@ -42,4 +43,7 @@ export const router = createBrowserRouter([
       { path: '/settings', element: <Settings /> },
     ],
   },
+
+  // 위 어떤 경로에도 안 맞을 때
+  { path: '*', element: <NotFound /> },
 ])
