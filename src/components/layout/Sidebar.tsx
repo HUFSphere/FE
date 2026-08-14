@@ -18,6 +18,10 @@ const menuItems = [
 function Sidebar() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language as 'ko' | 'en'
+    const displayName =
+    lang === 'en' && mockUser.name.en.length > 10
+      ? mockUser.name.en.split(' ')[0] // 이름(First name)만
+      : mockUser.name[lang]
 
   return (
     <aside className="relative flex w-80 shrink-0 flex-col bg-oat px-5 py-6">
@@ -66,7 +70,7 @@ function Sidebar() {
       <div className="flex items-center gap-6 px-1">
         <Avatar className="h-20 w-20 shrink-0 text-mocha" />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[32px] font-extrabold text-mocha">{mockUser.name[lang]}</div>
+          <div className="truncate text-[32px] font-extrabold text-mocha">{displayName}</div>
           <div className="truncate text-2xl font-semibold text-mocha">{mockUser.projectName[lang]}</div>
           <div className="text-2xl font-semibold text-mocha">{mockUser.role[lang]}</div>
         </div>
