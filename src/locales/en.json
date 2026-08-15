@@ -83,5 +83,14 @@
       },
       "button": "Get started"
     }
+  },
+  "signUp": {
+    "title": "Welcome aboard!",
+    "subtitle": "Fill in the fields below and start your project",
+    "email": "E-mail",
+    "password": "Password",
+    "name": "Name",
+    "submit": "SIGN UP",
+    "google": "Start with Google"
   }
 }
