@@ -10,5 +10,78 @@
     "lastSynced": "Last synced: {{time}}",
     "notification": "Notification",
     "logout": "Log out"
+  },
+  "status": {
+    "todo": "To do",
+    "progress": "In progress",
+    "review": "In review",
+    "done": "Done",
+    "blocked": "Blocked"
+  },
+  "landing": {
+    "headline": "Your team’s scattered records,\ngathered into\none feature map",
+    "lede": "LinkBoard groups the work, decisions, and designs scattered across GitHub, Notion, and Figma into a single map, feature by feature.",
+    "shotAlt": "Project map screen",
+    "sources": {
+      "github": "Why the code → the map’s backbone",
+      "notion": "Why the decision → meetings & requirements",
+      "figma": "Why the screen → frame comments"
+    },
+    "problem": {
+      "kicker": "Problem · Solution",
+      "title": "The records are still there.\nThe context is not.",
+      "items": {
+        "1": "Code lives in GitHub, decisions in Notion, screen intent in Figma. Understanding one feature means switching windows three times.",
+        "2": "Only the people who were there know that “this PR came out of that meeting.”",
+        "3": "“Two reviewers, no Friday deploys” — rules nobody wrote down, yet everybody follows."
+      }
+    },
+    "features": {
+      "1": {
+        "kicker": "Feature 01",
+        "title": "A map grouped by feature",
+        "desc": "People don’t think in sources. They think in “the checkout feature.”\nDesigns, decisions, and code for one feature gather on a single branch.",
+        "rows": {
+          "github": "#142 Payment API integration",
+          "notion": "PG selection meeting notes",
+          "figma": "Checkout flow"
+        }
+      },
+      "2": {
+        "kicker": "Feature 02",
+        "title": "Answers that cite their source",
+        "desc": "Answers come from your team’s actual records, with links to the originals.\nNo source, no answer.",
+        "question": "Q) Why is coupon support on hold?",
+        "rows": {
+          "github": "#158 · blocked",
+          "notion": "Feb 10 coupon policy thread"
+        }
+      },
+      "3": {
+        "kicker": "Feature 03",
+        "title": "Team norms, confirmed by the lead",
+        "desc": "Undocumented norms are inferred from PR and review patterns and proposed as candidates.\nOnly what the lead confirms becomes visible to the team.",
+        "rows": {
+          "1": "Usually two reviewers assigned",
+          "2": "Commit prefix feat:",
+          "3": "Avoid Friday deploys"
+        }
+      }
+    },
+    "cta": {
+      "title": "“Why is it like this?”\nNow the map answers.",
+      "desc": "The lead connects the sources once. Everyone who joins after that never has to ask.",
+      "roles": {
+        "member": {
+          "title": "Member",
+          "desc": "Browse the map · sourced Q&A · confirmed norms"
+        },
+        "leader": {
+          "title": "Lead",
+          "desc": "Confirm, edit, delete norms · manual links · source management"
+        }
+      },
+      "button": "Get started"
+    }
   }
 }
