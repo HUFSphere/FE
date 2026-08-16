@@ -86,6 +86,7 @@
   },
   "language": {
     "prompt": "당신의 언어는 무엇인가요?\nWHAT IS YOUR LANGUAGE?"
+  },
   "signUp": {
     "title": "어서오세요!",
     "subtitle": "다음 항목들을 입력하고 프로젝트를 시작하세요",
