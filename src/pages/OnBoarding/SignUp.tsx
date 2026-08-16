@@ -136,7 +136,7 @@ function SignUpDecor() {
       </g>
 
       {/* 코너가지-좌상 2개: 좌측 상·하 */}
-      <g transform="translate(-0.9 267.05)">
+      <g transform="translate(-0.9 347.05)">
         <CornerTopLeft />
       </g>
       <g transform="translate(-0.9 824.1)">
@@ -144,7 +144,7 @@ function SignUpDecor() {
       </g>
 
       {/* 곁가지-우 2개: 좌측 가장자리 */}
-      <g transform="translate(-1.86 159.24)">
+      <g transform="translate(-1.86 239.24)">
         <SideBranchRight y={0} />
         <SideBranchRight y={319} />
       </g>
@@ -161,12 +161,12 @@ function SignUpDecor() {
 
       {/* 코너가지-우하 2개: 우측 상·중 */}
       <g transform="translate(1765.1 77)">
-        <CornerBottomRight y={0} />
+        <CornerBottomRight y={80} />
         <CornerBottomRight y={440} />
       </g>
 
       {/* 곁가지-좌 3개: 우측 가장자리, 가운데 하나는 상하 반전 */}
-      <g transform="translate(1848.26 195.3)">
+      <g transform="translate(1848.26 275.3)">
         <SideBranchLeft />
       </g>
       <g transform="translate(1849.2 498.3) scale(1 -1) translate(0 -58.6)">
