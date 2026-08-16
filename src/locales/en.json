@@ -83,5 +83,10 @@
       },
       "button": "Get started"
     }
+  },
+  "role": {
+    "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
+    "leader": "Lead",
+    "member": "Member"
   }
 }
