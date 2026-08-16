@@ -88,6 +88,17 @@
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
     "leader": "Lead",
     "member": "Member"
+  "language": {
+    "prompt": "당신의 언어는 무엇인가요?\nWHAT IS YOUR LANGUAGE?"
+  },
+  "signUp": {
+    "title": "Welcome aboard!",
+    "subtitle": "Fill in the fields below and start your project",
+    "email": "E-mail",
+    "password": "Password",
+    "name": "Name",
+    "submit": "SIGN UP",
+    "google": "Start with Google"
      },
   "signIn": {
     "title": "Welcome!",
