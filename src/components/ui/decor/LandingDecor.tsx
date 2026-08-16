@@ -1,7 +1,5 @@
 function LandingDecor({ className }: { className?: string }) {
   return (
-    /* 좌표계가 콘텐츠와 같아야 하므로 1920x1080 viewBox를 그대로 씁니다.
-       slice = 상자를 채우고 넘치는 쪽은 중앙 기준으로 잘림 (object-cover와 동일) */
     <svg
       viewBox="0 0 1920 1080"
       fill="none"
