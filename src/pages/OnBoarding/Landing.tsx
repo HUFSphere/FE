@@ -1,11 +1,12 @@
-//랜딩페이지
+// 랜딩페이지
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import LandingDecor from '../../components/ui/decor/LandingDecor'
+import LandingDecor2 from '../../components/ui/decor/LandingDecor2'
 import StatusBadge from '../../components/ui/StatusBadge/Statusbadge'
 
 /* 3가지 sources */
@@ -61,11 +62,11 @@ function PageOne() {
           {SOURCES.map((s) => (
             <li key={s.id} className="flex items-center gap-5.5">
               <span
-                className={`grid h-12.25 w-34.75 shrink-0 place-items-center rounded-[10px] text-[25px] font-medium text-milk ${s.pill}`}
+                className={`grid h-12.25 w-34.75 shrink-0 place-items-center rounded-[10px] text-[19px] font-bold text-milk ${s.pill}`}
               >
                 {s.label}
               </span>
-              <span className="break-keep text-[20px] font-bold text-mocha">
+              <span className="break-keep text-[21px] font-semibold text-mocha">
                 {t(`landing.sources.${s.id}`)}
               </span>
             </li>
@@ -91,8 +92,8 @@ function PageTwo() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="grid grid-cols-[531fr_1077fr] gap-10">
+    <div className="flex flex-col gap-12">
+      <div className="grid grid-cols-[531fr_1077fr] gap-23.75">
         <div>
           <p className="mb-3 text-[20px] font-extrabold text-taupe">{t('landing.problem.kicker')}</p>
           <h2 className="whitespace-pre-line text-[45px] font-black leading-tight tracking-tight text-dark-lava">
@@ -103,10 +104,10 @@ function PageTwo() {
         <ul className="flex flex-col gap-5">
           {PROBLEM_IDS.map((id) => (
             <li key={id} className="flex items-center gap-4.5">
-              <span className="grid h-[45px] w-[45px] shrink-0 -translate-y-0.5 place-items-center rounded-[10px] bg-mocha text-[20px] font-medium text-milk">
+              <span className="grid h-[45px] w-[48px] shrink-0 place-items-center rounded-[10px] bg-mocha text-lg font-normal text-milk">
                 0{id}
               </span>
-              <span className="whitespace-nowrap text-[19px] font-semibold leading-none tracking-tight text-dark-lava">
+              <span className="whitespace-nowrap text-[19px] font-semibold text-dark-lava">
                 {t(`landing.problem.items.${id}`)}
               </span>
             </li>
@@ -171,14 +172,14 @@ function PageTwo() {
           <h3 className="mb-3.5 whitespace-pre-line text-[32px] font-extrabold leading-tight tracking-tight text-milk">
             {t('landing.cta.title')}
           </h3>
-          <p className="break-keep text-[15px] font-medium text-oat">{t('landing.cta.desc')}</p>
+          <p className="break-keep text-[17px] font-medium text-taupe">{t('landing.cta.desc')}</p>
         </div>
 
-        <div className="ml-auto flex gap-16">
+        <div className="flex gap-10">
           {(['member', 'leader'] as const).map((id) => (
-            <div key={id} className="max-w-[350px]">
-              <p className="mb-0.5 text-[25px] font-bold text-milk">{t(`landing.cta.roles.${id}.title`)}</p>
-              <p className="break-keep text-[15px] font-medium leading-snug text-oat">
+            <div key={id} className="max-w-70">
+              <p className="mb-0.5 text-lg font-bold text-milk">{t(`landing.cta.roles.${id}.title`)}</p>
+              <p className="break-keep text-[15px] font-medium leading-snug text-taupe">
                 {t(`landing.cta.roles.${id}.desc`)}
               </p>
             </div>
@@ -186,12 +187,33 @@ function PageTwo() {
         </div>
 
         <button
-          type="button"
-          onClick={() => navigate('/sign-in')}
-          className="h-15 w-65 shrink-0 rounded-full bg-oat px-6 text-[20px] font-black text-charcoal"
+          onClick={() => navigate('/sign-up')}
+          className="h-12.25 w-57.25 shrink-0 rounded-full bg-oat text-[17px] font-bold text-charcoal"
         >
           {t('landing.cta.button')}
         </button>
+      </div>
+    </div>
+  )
+}
+
+function Stage({ children }: { children: ReactNode }) {
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const fit = () => setScale(Math.min(window.innerWidth / 1920, window.innerHeight / 1080))
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
+
+  return (
+    <div className="absolute inset-0 grid place-items-center">
+      <div
+        style={{ transform: `scale(${scale})` }}
+        className="relative h-[1080px] w-[1920px] shrink-0 origin-center"
+      >
+        {children}
       </div>
     </div>
   )
@@ -220,29 +242,27 @@ function Landing() {
       <div ref={sceneRef} className="relative h-[180vh]">
         <div className="sticky top-0 h-screen overflow-hidden">
           {/* 랜딩 페이지-1 에서 시작 */}
-          <motion.div
-            style={{ scale: p1Scale, y: p1Y }}
-            className="absolute inset-0 grid place-items-center bg-milk"
-          >
-            <div className="pointer-events-none absolute inset-0 mx-auto h-full w-full max-w-480">
-              <LandingDecor />
-            </div>
-            <div className="relative w-full max-w-480 px-27.25">
-              <PageOne />
-            </div>
+          <motion.div style={{ scale: p1Scale, y: p1Y }} className="absolute inset-0 bg-milk">
+            <Stage>
+              <div className="pointer-events-none absolute inset-0">
+                <LandingDecor />
+              </div>
+              <div className="absolute inset-0 grid place-items-center px-27.25">
+                <PageOne />
+              </div>
+            </Stage>
           </motion.div>
 
           {/* 랜딩 페이지-2를 위로 덮음 */}
-          <motion.div
-            style={{ y: p2Y }}
-            className="absolute inset-0 z-10 grid place-items-center bg-milk"
-          >
-            <div className="pointer-events-none absolute inset-0 mx-auto h-full w-full max-w-480">
-              <LandingDecor />
-            </div>
-            <div className="relative w-full max-w-480 px-27.25">
-              <PageTwo />
-            </div>
+          <motion.div style={{ y: p2Y }} className="absolute inset-0 z-10 bg-milk">
+            <Stage>
+              <div className="pointer-events-none absolute inset-0">
+                <LandingDecor2 />
+              </div>
+              <div className="absolute inset-0 grid place-items-center px-27.25">
+                <PageTwo />
+              </div>
+            </Stage>
           </motion.div>
         </div>
       </div>
