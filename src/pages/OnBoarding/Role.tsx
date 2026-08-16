@@ -6,7 +6,7 @@
 // - 로고: 기존 public/linkboard_icon.svg 사용
 // - 문구: locales/ko.json, en.json의 role 키
 
-import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -96,117 +96,128 @@ function StemHorizontal() {
   )
 }
 
-/* 배경 장식 — 화면 전체(1920x1080)를 덮습니다.
-   slice = 상자를 채우고 넘치는 쪽은 중앙 기준으로 잘림 (object-cover와 동일)
-   각 g의 transform은 decor-kit 원본 좌표를 시안 위치·각도로 옮기는 값입니다. */
-function RoleDecor() {
+/* 장식 한 겹.
+   viewBox는 시안(1920x1080) 그대로라 도형 크기·비율은 항상 시안과 같습니다.
+   달라지는 건 preserveAspectRatio의 정렬뿐입니다. slice는 넘치는 쪽을 잘라내는데
+   기본값 xMidYMid는 상하좌우를 고르게 잘라서, 화면 비율이 16:9가 아니면
+   가장자리에 붙은 가지가 잘리거나 안쪽으로 밀려 들어옵니다
+   (예: 1920x955 브라우저에서 위아래 각 62px, 1280x900이면 좌우 각 192px).
+   그래서 가지를 자기 모서리에 고정하는 정렬로 나눠 그립니다.
+   xMinYMin이면 좌·상단이 절대 안 잘리므로 상단 가지가 시안 위치를 유지합니다.
+   각 g의 transform은 decor-kit 원본 좌표를 시안 위치·각도로 옮기는 값이며 시안 그대로입니다. */
+function DecorLayer({ align, children }: { align: string; children: ReactNode }) {
   return (
     <svg
       viewBox="0 0 1920 1080"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="xMidYMid slice"
-      className="h-full w-full"
+      preserveAspectRatio={`${align} slice`}
+      className="absolute inset-0 h-full w-full"
       aria-hidden
     >
-      <defs>
-        <linearGradient id="role-stem-down" x1="5" y1="5" x2="5" y2="165" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6B5A4C" />
-          <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="role-stem-fade" x1="5" y1="5" x2="175" y2="5" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#A8957F" />
-          <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
-        </linearGradient>
-        <radialGradient id="role-glow">
-          <stop stopColor="#A8957F" stopOpacity="0.55" />
-          <stop offset="0.55" stopColor="#A8957F" stopOpacity="0.22" />
-          <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      {/* 번짐-원: 좌상단 패널 경계 · 우하단 */}
-      <circle cx="838" cy="236" r="98" fill="url(#role-glow)" />
-      <circle cx="1616" cy="849" r="54" fill="url(#role-glow)" />
-
-      {/* 노드-흩뿌림: 좌측 문구 위 */}
-      <g transform="translate(16 390)">
-        <circle cx="4" cy="13.5" r="4" fill="#A8957F" opacity="0.8" />
-        <circle cx="70" cy="45.5" r="6.5" fill="#C4B49E" />
-        <circle cx="36" cy="93.5" r="3" fill="#A8957F" opacity="0.6" />
-        <circle cx="108" cy="3.5" r="3.5" fill="#A8957F" opacity="0.5" />
-        <circle cx="130" cy="79.5" r="9" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.2" />
-        <circle cx="130" cy="79.5" r="3" fill="#A8957F" />
-      </g>
-
-      {/* 코너가지-좌상 4개 */}
-      <g transform="translate(1920.9 214.9) scale(-1 -1)">
-        <CornerTopLeft />
-      </g>
-      <g transform="translate(682.1 1080.9) rotate(-90)">
-        <CornerTopLeft />
-      </g>
-      <g transform="translate(464.9 -0.9) rotate(90)">
-        <CornerTopLeft />
-      </g>
-      <g transform="translate(-0.9 820.1)">
-        <CornerTopLeft />
-      </g>
-
-      {/* 곁가지-우 2개 */}
-      <g transform="translate(1862.3 324.9) rotate(-90)">
-        <SideBranchRight />
-      </g>
-      <g transform="translate(-1.9 707.3)">
-        <SideBranchRight />
-      </g>
-
-      {/* 줄기-세로 2개: 우하단 */}
-      <g transform="translate(1816 915)">
-        <StemVertical />
-      </g>
-      <g transform="translate(1786 956)">
-        <StemVertical />
-      </g>
-
-      {/* 줄기-가로 2개: 상단에서 아래로 내려옴 */}
-      <g transform="matrix(0 -1 -1 0 702 171)">
-        <StemHorizontal />
-      </g>
-      <g transform="matrix(0 -1 -1 0 731 141)">
-        <StemHorizontal />
-      </g>
+      {children}
     </svg>
   )
 }
 
-/* 역할 선택 카드 — 아이콘 + 이름, 왕관은 선택 중인 쪽에만 */
-function RoleChoice({
-  label,
-  crowned,
-  active,
-  onActiveChange,
-  onClick,
-}: {
-  label: string
-  crowned: boolean
-  active: boolean
-  onActiveChange: (active: boolean) => void
-  onClick: () => void
-}) {
+function RoleDecor() {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => onActiveChange(true)}
-      onMouseLeave={() => onActiveChange(false)}
-      onFocus={() => onActiveChange(true)}
-      onBlur={() => onActiveChange(false)}
-      className="flex flex-col items-center gap-2.5"
-    >
-      {/* 왕관 자리는 양쪽 모두 항상 차지해 둡니다. 그래야 왕관이 옮겨가도 아이콘이 밀리지 않습니다 */}
-      <CrownIcon className={`transition-opacity duration-200 ${crowned ? 'opacity-100' : 'opacity-0'}`} />
-      <PersonIcon className={`transition-transform duration-200 ${active ? 'scale-110' : 'scale-100'}`} />
+    <>
+      {/* 상단: 코너가지(위에서 내려옴) + 줄기-가로 2개(위에서 아래로) */}
+      <DecorLayer align="xMinYMin">
+        <defs>
+          <linearGradient id="role-stem-fade" x1="5" y1="5" x2="175" y2="5" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#A8957F" />
+            <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(464.9 -0.9) rotate(90)">
+          <CornerTopLeft />
+        </g>
+        <g transform="matrix(0 -1 -1 0 702 171)">
+          <StemHorizontal />
+        </g>
+        <g transform="matrix(0 -1 -1 0 731 141)">
+          <StemHorizontal />
+        </g>
+      </DecorLayer>
+
+      {/* 우상단: 코너가지(180도) + 곁가지 */}
+      <DecorLayer align="xMaxYMin">
+        <g transform="translate(1920.9 214.9) scale(-1 -1)">
+          <CornerTopLeft />
+        </g>
+        <g transform="translate(1862.3 324.9) rotate(-90)">
+          <SideBranchRight />
+        </g>
+      </DecorLayer>
+
+      {/* 노드-흩뿌림: 세로 가운데에 오는 안내 문구 곁에 놓이는 장식이라 문구와 같이 중앙 기준으로 둡니다 */}
+      <DecorLayer align="xMinYMid">
+        <g transform="translate(16 390)">
+          <circle cx="4" cy="13.5" r="4" fill="#A8957F" opacity="0.8" />
+          <circle cx="70" cy="45.5" r="6.5" fill="#C4B49E" />
+          <circle cx="36" cy="93.5" r="3" fill="#A8957F" opacity="0.6" />
+          <circle cx="108" cy="3.5" r="3.5" fill="#A8957F" opacity="0.5" />
+          <circle cx="130" cy="79.5" r="9" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.2" />
+          <circle cx="130" cy="79.5" r="3" fill="#A8957F" />
+        </g>
+      </DecorLayer>
+
+      {/* 좌하단: 곁가지 + 코너가지 2개(하나는 아래에서 위로) */}
+      <DecorLayer align="xMinYMax">
+        <g transform="translate(-1.9 707.3)">
+          <SideBranchRight />
+        </g>
+        <g transform="translate(-0.9 820.1)">
+          <CornerTopLeft />
+        </g>
+        <g transform="translate(682.1 1080.9) rotate(-90)">
+          <CornerTopLeft />
+        </g>
+      </DecorLayer>
+
+      {/* 우하단: 줄기-세로 2개, 아래로 사라짐 */}
+      <DecorLayer align="xMaxYMax">
+        <defs>
+          <linearGradient id="role-stem-down" x1="5" y1="5" x2="5" y2="165" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#6B5A4C" />
+            <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(1816 915)">
+          <StemVertical />
+        </g>
+        <g transform="translate(1786 956)">
+          <StemVertical />
+        </g>
+      </DecorLayer>
+
+      {/* 번짐-원 2개는 윤곽이 없는 배경이라 조금 잘려도 티가 나지 않으므로 중앙 기준으로 둡니다 */}
+      <DecorLayer align="xMidYMid">
+        <defs>
+          <radialGradient id="role-glow">
+            <stop stopColor="#A8957F" stopOpacity="0.55" />
+            <stop offset="0.55" stopColor="#A8957F" stopOpacity="0.22" />
+            <stop offset="1" stopColor="#A8957F" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx="838" cy="236" r="98" fill="url(#role-glow)" />
+        <circle cx="1616" cy="849" r="54" fill="url(#role-glow)" />
+      </DecorLayer>
+    </>
+  )
+}
+
+/* 역할 선택 카드 — 아이콘 + 이름. 왕관은 시안대로 팀장에만 붙습니다.
+   왕관과 사람 아이콘을 한 상자에 묶어 그 상자를 확대하므로, 호버 시 둘이 같이 커집니다. */
+function RoleChoice({ label, crown, onClick }: { label: string; crown?: boolean; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="group flex flex-col items-center gap-2.5">
+      <div className="flex flex-col items-center gap-2.5 transition-transform duration-200 group-hover:scale-110 group-focus-visible:scale-110">
+        {crown && <CrownIcon />}
+        <PersonIcon />
+      </div>
       <span className="text-[30px] font-bold leading-[33px] text-dark-lava">{label}</span>
     </button>
   )
@@ -215,10 +226,6 @@ function RoleChoice({
 function Role() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-
-  // 마우스를 올리거나 키보드 포커스가 간 역할. 아무것도 없으면 시안대로 팀장이 왕관을 씁니다.
-  const [active, setActive] = useState<'leader' | 'member' | null>(null)
-  const crowned = active ?? 'leader'
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-milk">
@@ -233,20 +240,8 @@ function Role() {
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-oat">
         <div className="flex items-end gap-[228px]">
           {/* TODO: 실제 온보딩 분기는 기획 확정 후 조정 필요 */}
-          <RoleChoice
-            label={t('role.leader')}
-            crowned={crowned === 'leader'}
-            active={active === 'leader'}
-            onActiveChange={(on) => setActive(on ? 'leader' : null)}
-            onClick={() => navigate('/onboarding/connect')}
-          />
-          <RoleChoice
-            label={t('role.member')}
-            crowned={crowned === 'member'}
-            active={active === 'member'}
-            onActiveChange={(on) => setActive(on ? 'member' : null)}
-            onClick={() => navigate('/onboarding/invite-code')}
-          />
+          <RoleChoice crown label={t('role.leader')} onClick={() => navigate('/onboarding/connect')} />
+          <RoleChoice label={t('role.member')} onClick={() => navigate('/onboarding/invite-code')} />
         </div>
       </div>
 
