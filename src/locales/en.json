@@ -92,5 +92,16 @@
     "name": "Name",
     "submit": "SIGN UP",
     "google": "Start with Google"
+     },
+  "signIn": {
+    "title": "Welcome!",
+    "subtitle": "Create a project or join one right now!",
+    "email": "E-mail",
+    "password": "Password",
+    "submit": "SIGN IN",
+    "google": "Continue with Google",
+    "noAccount": "Don’t have an account?",
+    "signUp": "Start by signing up",
+    "illustrationAlt": "LinkBoard map illustration"
   }
 }
