@@ -83,5 +83,11 @@
       },
       "button": "Get started"
     }
+  },
+  "inviteCode": {
+    "title": "Enter your invite code!",
+    "subtitle": "Enter the code you received and join the project",
+    "label": "Invite code",
+    "submit": "Join the project"
   }
 }
