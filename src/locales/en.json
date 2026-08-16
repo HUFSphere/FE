@@ -86,5 +86,16 @@
   },
   "language": {
     "prompt": "당신의 언어는 무엇인가요?\nWHAT IS YOUR LANGUAGE?"
+     },
+  "signIn": {
+    "title": "Welcome!",
+    "subtitle": "Create a project or join one right now!",
+    "email": "E-mail",
+    "password": "Password",
+    "submit": "SIGN IN",
+    "google": "Continue with Google",
+    "noAccount": "Don’t have an account?",
+    "signUp": "Start by signing up",
+    "illustrationAlt": "LinkBoard map illustration"
   }
 }
