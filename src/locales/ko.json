@@ -88,6 +88,7 @@
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
     "leader": "팀장",
     "member": "팀원"
+  },
   "language": {
     "prompt": "당신의 언어는 무엇인가요?\nWHAT IS YOUR LANGUAGE?"
   },
