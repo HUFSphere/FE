@@ -162,7 +162,7 @@ function SignInDecor() {
       </defs>
 
       {/* 코너가지-좌상: 좌측 상단, 화면 밖에서 안쪽으로 */}
-      <g transform="translate(-229 -26)">
+      <g transform="translate(-229 54)">
         <path d="M230 210C268 210 288 232 300 258C312 284 336 296 372 296" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
         <path d="M300 258C302 232 322 222 348 220" stroke="#C4B49E" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="348" cy="220" r="9" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.2" />
@@ -172,7 +172,7 @@ function SignInDecor() {
       </g>
 
       {/* 곁가지-우: 좌측 중단, 화면 밖에서 안쪽으로 */}
-      <g transform="translate(-340 281)">
+      <g transform="translate(-340 341)">
         <path d="M340 118C340 90 376 92 396 76" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
         <circle cx="396" cy="76" r="15" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.4" />
         <circle cx="396" cy="76" r="5" fill="#A8957F" />
@@ -189,20 +189,20 @@ function SignInDecor() {
       </g>
 
       {/* 줄기-가로: 우측 상단, 디자인 패널 쪽으로 사라짐 */}
-      <g transform="translate(390 40)">
+      <g transform="translate(390 120)">
         <path d="M710 80H880" stroke="url(#signin-stem-right)" strokeWidth="2.4" strokeLinecap="round" />
         <circle cx="710" cy="80" r="5" fill="#A8957F" />
       </g>
 
       {/* 곁가지-좌: 우측 하단 */}
-      <g transform="translate(710 813)">
+      <g transform="translate(710 743)">
         <path d="M560 118C560 90 524 92 504 76" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
         <circle cx="504" cy="76" r="15" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.4" />
         <circle cx="504" cy="76" r="5" fill="#A8957F" />
       </g>
 
       {/* 코너가지-우하: 우측 하단, 디자인 패널 쪽으로 사라짐 */}
-      <g transform="translate(570 708)">
+      <g transform="translate(570 628)">
         <path d="M700 296C662 296 642 274 630 248C618 222 594 210 558 210" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
         <path d="M630 248C628 274 608 284 582 286" stroke="#C4B49E" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="582" cy="286" r="9" fill="#F8F4ED" stroke="#C4B49E" strokeWidth="1.2" />
