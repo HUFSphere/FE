@@ -84,6 +84,12 @@
       "button": "지금 시작하기"
     }
   },
+  "inviteCode": {
+    "title": "초대 코드를 입력하세요!",
+    "subtitle": "전달 받은 코드를 입력하고 프로젝트에 참여하세요",
+    "label": "초대 코드",
+    "submit": "프로젝트 참여하기"
+    },
   "role": {
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
     "leader": "팀장",

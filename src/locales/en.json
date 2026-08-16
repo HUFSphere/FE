@@ -84,6 +84,12 @@
       "button": "Get started"
     }
   },
+  "inviteCode": {
+    "title": "Enter your invite code!",
+    "subtitle": "Enter the code you received and join the project",
+    "label": "Invite code",
+    "submit": "Join the project"
+    },
   "role": {
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
     "leader": "Lead",
