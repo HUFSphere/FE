@@ -1,16 +1,20 @@
-// 팀장 / 팀원 역할 설정 페이지
-//
-// - 아이콘: 피그마 export SVG를 public에 추가하지 않고 이 파일에 인라인
-// - 배경 장식: decor 폴더에 새 파일을 만들지 않고 이 파일에 인라인
-//   (도형 자체는 기존 components/ui/decor/linkboard-decor-kit.svg의 것과 동일)
-// - 로고: 기존 public/linkboard_icon.svg 사용
-// - 문구: locales/ko.json, en.json의 role 키
+// 팀장 팀원 역할 설정 페이지
 
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 
-/* 왕관 (피그마 export) — 기본은 팀장, 마우스를 올리면 그 쪽으로 옮겨갑니다 */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0 },
+}
+const staggerParent = (stagger = 0.15, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
+/* 왕관 */
 function CrownIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -30,7 +34,7 @@ function CrownIcon({ className }: { className?: string }) {
   )
 }
 
-/* 사람 실루엣 (피그마 export) — 팀장·팀원 공통 */
+/* 사람 실루엣 */
 function PersonIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -46,7 +50,7 @@ function PersonIcon({ className }: { className?: string }) {
   )
 }
 
-/* 코너가지-좌상 — 4번(180도 · -90도 · 90도 · 원본) 쓰입니다 */
+/* 코너가지-좌상 */
 function CornerTopLeft() {
   return (
     <>
@@ -65,7 +69,7 @@ function CornerTopLeft() {
   )
 }
 
-/* 곁가지-우 — 2번(-90도 · 원본) */
+/* 곁가지-우 */
 function SideBranchRight() {
   return (
     <>
@@ -76,7 +80,7 @@ function SideBranchRight() {
   )
 }
 
-/* 줄기-세로 — 우하단 2번, 위쪽 점에서 아래로 사라짐 */
+/* 줄기-세로 */
 function StemVertical() {
   return (
     <>
@@ -86,7 +90,7 @@ function StemVertical() {
   )
 }
 
-/* 줄기-가로 — 상단 2번, 90도 돌려 세로로 세운 뒤 아래쪽 점에서 위로 사라짐 */
+/* 줄기-가로 */
 function StemHorizontal() {
   return (
     <>
@@ -96,15 +100,6 @@ function StemHorizontal() {
   )
 }
 
-/* 장식 한 겹.
-   viewBox는 시안(1920x1080) 그대로라 도형 크기·비율은 항상 시안과 같습니다.
-   달라지는 건 preserveAspectRatio의 정렬뿐입니다. slice는 넘치는 쪽을 잘라내는데
-   기본값 xMidYMid는 상하좌우를 고르게 잘라서, 화면 비율이 16:9가 아니면
-   가장자리에 붙은 가지가 잘리거나 안쪽으로 밀려 들어옵니다
-   (예: 1920x955 브라우저에서 위아래 각 62px, 1280x900이면 좌우 각 192px).
-   그래서 가지를 자기 모서리에 고정하는 정렬로 나눠 그립니다.
-   xMinYMin이면 좌·상단이 절대 안 잘리므로 상단 가지가 시안 위치를 유지합니다.
-   각 g의 transform은 decor-kit 원본 좌표를 시안 위치·각도로 옮기는 값이며 시안 그대로입니다. */
 function DecorLayer({ align, children }: { align: string; children: ReactNode }) {
   return (
     <svg
@@ -123,7 +118,7 @@ function DecorLayer({ align, children }: { align: string; children: ReactNode })
 function RoleDecor() {
   return (
     <>
-      {/* 상단: 코너가지(위에서 내려옴) + 줄기-가로 2개(위에서 아래로) */}
+      {/* 상단: 코너가지 + 줄기-가로 2개 */}
       <DecorLayer align="xMinYMin">
         <defs>
           <linearGradient id="role-stem-fade" x1="5" y1="5" x2="175" y2="5" gradientUnits="userSpaceOnUse">
@@ -152,7 +147,7 @@ function RoleDecor() {
         </g>
       </DecorLayer>
 
-      {/* 노드-흩뿌림: 세로 가운데에 오는 안내 문구 곁에 놓이는 장식이라 문구와 같이 중앙 기준으로 둡니다 */}
+      {/* 노드-흩뿌림 */}
       <DecorLayer align="xMinYMid">
         <g transform="translate(16 390)">
           <circle cx="4" cy="13.5" r="4" fill="#A8957F" opacity="0.8" />
@@ -164,7 +159,7 @@ function RoleDecor() {
         </g>
       </DecorLayer>
 
-      {/* 좌하단: 곁가지 + 코너가지 2개(하나는 아래에서 위로) */}
+      {/* 좌하단: 곁가지 + 코너가지 2개 */}
       <DecorLayer align="xMinYMax">
         <g transform="translate(-1.9 707.3)">
           <SideBranchRight />
@@ -177,7 +172,7 @@ function RoleDecor() {
         </g>
       </DecorLayer>
 
-      {/* 우하단: 줄기-세로 2개, 아래로 사라짐 */}
+      {/* 우하단: 줄기-세로 2개 */}
       <DecorLayer align="xMaxYMax">
         <defs>
           <linearGradient id="role-stem-down" x1="5" y1="5" x2="5" y2="165" gradientUnits="userSpaceOnUse">
@@ -193,7 +188,7 @@ function RoleDecor() {
         </g>
       </DecorLayer>
 
-      {/* 번짐-원 2개는 윤곽이 없는 배경이라 조금 잘려도 티가 나지 않으므로 중앙 기준으로 둡니다 */}
+      {/* 번짐-원 2개 */}
       <DecorLayer align="xMidYMid">
         <defs>
           <radialGradient id="role-glow">
@@ -209,17 +204,16 @@ function RoleDecor() {
   )
 }
 
-/* 역할 선택 카드 — 아이콘 + 이름. 왕관은 시안대로 팀장에만 붙습니다.
-   왕관과 사람 아이콘을 한 상자에 묶어 그 상자를 확대하므로, 호버 시 둘이 같이 커집니다. */
+/* 역할 선택 카드 */
 function RoleChoice({ label, crown, onClick }: { label: string; crown?: boolean; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="group flex flex-col items-center gap-2.5">
+    <motion.button variants={fadeUp} type="button" onClick={onClick} className="group flex flex-col items-center">
       <div className="flex flex-col items-center gap-2.5 transition-transform duration-200 group-hover:scale-110 group-focus-visible:scale-110">
         {crown && <CrownIcon />}
         <PersonIcon />
+        <span className="text-[30px] font-bold leading-8.25 text-dark-lava">{label}</span>
       </div>
-      <span className="text-[30px] font-bold leading-[33px] text-dark-lava">{label}</span>
-    </button>
+    </motion.button>
   )
 }
 
@@ -229,32 +223,45 @@ function Role() {
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-milk">
-      {/* 좌측: 안내 문구 (영역 정중앙) */}
+      {/* 좌측: 안내 문구 */}
       <div className="relative flex w-162.5 shrink-0 items-center justify-center px-2.5">
-        <p className="whitespace-pre text-center text-[40px] font-black leading-12 text-dark-lava">
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="whitespace-pre text-center text-[40px] font-black leading-12 text-dark-lava"
+        >
           {t('role.prompt')}
-        </p>
+        </motion.p>
       </div>
 
-      {/* 우측 패널: 역할 선택 (영역 정중앙, 아이콘 아래쪽 기준 정렬) */}
+      {/* 우측 패널: 역할 선택 */}
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-oat">
-        <div className="flex items-end gap-[228px]">
-          {/* TODO: 실제 온보딩 분기는 기획 확정 후 조정 필요 */}
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={staggerParent(0.15, 0.25)}
+          className="flex items-end gap-57"
+        >
           <RoleChoice crown label={t('role.leader')} onClick={() => navigate('/onboarding/connect')} />
           <RoleChoice label={t('role.member')} onClick={() => navigate('/onboarding/invite-code')} />
-        </div>
+        </motion.div>
       </div>
 
-      {/* 장식은 시안 순서대로 패널 위에 얹힙니다 */}
       <div className="pointer-events-none absolute inset-0">
         <RoleDecor />
       </div>
 
       {/* 로고 */}
-      <div className="absolute left-8.75 top-8.75 flex items-center gap-5">
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute left-8.75 top-8.75 flex items-center gap-5"
+      >
         <img src="/linkboard_icon.svg" alt="" aria-hidden className="h-17.5 w-17.5" />
         <span className="text-[32px] font-extrabold tracking-tight text-mocha">LinkBoard</span>
-      </div>
+      </motion.div>
     </div>
   )
 }

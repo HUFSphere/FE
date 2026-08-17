@@ -9,7 +9,14 @@
   "header": {
     "lastSynced": "Last synced: {{time}}",
     "notification": "Notification",
-    "logout": "Log out"
+    "logout": "Log out",
+    "logoutModal": {
+      "title": "Log out",
+      "confirmTitle": "Are you sure you want to log out?",
+      "confirmDesc": "You'll need to sign in again to use the service after logging out.",
+      "confirm": "Log out",
+      "cancel": "Cancel"
+    }
   },
   "status": {
     "todo": "To do",
@@ -117,5 +124,41 @@
     "noAccount": "Don’t have an account?",
     "signUp": "Start by signing up",
     "illustrationAlt": "LinkBoard map illustration"
+  },
+  "connect": {
+    "title": "Connect your project",
+    "subtitle": "Start connecting with Github, Notion, and Figma",
+    "requireOne": "At least one project connection is required.",
+    "finish": "Finish",
+    "modal": {
+      "titleWithSource": "{{source}} Connection",
+      "connectingTitle": "Redirecting to {{source}} authentication.",
+      "connectingDesc": "Redirecting to the authentication window.\nPlease wait a moment...",
+      "successTitle": "{{source}} connected successfully.",
+      "successDesc": "[Repository name] has been connected.",
+      "errorTitle": "Connection failed.",
+      "errorDesc": "{{source}} authentication was not completed. Please try again.",
+      "errorBanner": "Message placeholder: e.g. - Failed to connect {{source}} project. (Code: 000)",
+      "connectNext": "Connect next item",
+      "finishAndContinue": "Finish and continue",
+      "retry": "Retry",
+      "close": "Close"
+    }
+  },
+  "projectStatus": {
+    "breadcrumbMap": "Project Map",
+    "breadcrumbCurrent": "Project Status",
+    "statusOptions": {
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "done": "Done"
+    },
+    "overallProgress": "Overall progress",
+    "recentIssues": "Recent issues",
+    "connectionBasis": "Connection basis: AI's brief explanation",
+    "askAbout": "Ask about {{source}}",
+    "viewIssueList": "View issue list",
+    "recentActivity": "Recent activity",
+    "aiRecommendedQuestions": "AI recommended questions"
   }
 }
