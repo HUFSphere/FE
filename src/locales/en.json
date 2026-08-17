@@ -96,7 +96,7 @@
     "subtitle": "Enter the code you received and join the project",
     "label": "Invite code",
     "submit": "Join the project"
-    },
+  },
   "role": {
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
     "leader": "Lead",
@@ -113,7 +113,7 @@
     "name": "Name",
     "submit": "SIGN UP",
     "google": "Start with Google"
-     },
+  },
   "signIn": {
     "title": "Welcome!",
     "subtitle": "Create a project or join one right now!",
@@ -159,6 +159,87 @@
     "askAbout": "Ask about {{source}}",
     "viewIssueList": "View issue list",
     "recentActivity": "Recent activity",
-    "aiRecommendedQuestions": "AI recommended questions"
+    "aiRecommendedQuestions": "AI recommended questions",
+    "featureDetail": {
+      "breadcrumb": "Feature list > Feature Detail",
+      "ask": "Ask about this feature",
+      "linked": "Linked items",
+      "evidence": "Why they are linked",
+      "viewOn": "View on {{source}}"
+    },
+    "featureList": {
+      "title": "Feature list",
+      "status": "Status",
+      "platform": "Platform",
+      "selectPlaceholder": "Select ...",
+      "search": "Search",
+      "detail": "View detail",
+      "empty": "No features match these filters"
+    },
+    "qa": {
+      "title": "Project Q&A",
+      "scope": "Scope",
+      "scopeAll": "Whole project",
+      "searchFeature": "Search features ...",
+      "askLabel": "Ask about this project",
+      "answer": "Answer",
+      "answerPlaceholder": "The answer will appear here ...",
+      "evidence": "Sources used",
+      "practices": "Team norm analysis",
+      "viewEvidence": "View the source record",
+      "disclaimer": "These are patterns found in recent records.\nThey may not match your team’s actual norms.",
+      "suggestions": "Follow-up questions"
+    },
+    "teamSettings": {
+      "title": "Team settings",
+      "members": "Members",
+      "addMember": "Add member",
+      "leader": "Lead",
+      "member": "Members",
+      "removeMember": "Remove member",
+      "connections": "Project connections",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "disconnectTitle": "Disconnect source",
+      "disconnectBanner": "{{source}}",
+      "disconnectConfirm": "Disconnect this source?",
+      "disconnectDesc": "Its records will no longer appear on the map or in Q&A.\nReconnecting restores them as they were.",
+      "disconnectAction": "Disconnect",
+      "cancel": "Cancel",
+      "disconnectFootnote": "The original repository or document is not deleted.",
+      "inviteTitle": "Invite a teammate",
+      "inviteBanner": "An invite code has been issued",
+      "inviteDesc": "Share this code and your teammate can join the project.",
+      "copyCode": "Copy code",
+      "copied": "Copied",
+      "regenerate": "Issue a new code",
+      "inviteFootnote": "Issuing a new code invalidates the previous one.",
+      "connectTitle": "Connect a source",
+      "connectHeading": "Connect your {{source}} account?",
+      "connectDesc": "Once connected, records from {{source}} appear on the map and in Q&A.\nAn authentication window will open.",
+      "connectAction": "Continue with {{source}}",
+      "connectFootnote": "Read access only. We never modify or delete your repositories or documents.",
+      "connectPlaceholder": "The URL appears once connected"
+    },
+    "settings": {
+      "title": "Settings",
+      "language": "Language",
+      "uiLanguage": "Interface language",
+      "tone": "AI answer tone",
+      "toneDesc": "Edit the text below, or write your own instructions.",
+      "save": "Save",
+      "saved": "Saved",
+      "presets": "Presets"
+    },
+    "map": {
+      "title": "Project map",
+      "overview": "View project status",
+      "sync": "Sync",
+      "summary": "Summary",
+      "linked": "Linked items {{count}}",
+      "detail": "View detail",
+      "ask": "Ask about this feature",
+      "empty": "Select a feature on the map"
+    }
   }
 }
