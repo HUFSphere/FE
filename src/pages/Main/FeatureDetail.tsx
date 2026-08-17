@@ -1,5 +1,6 @@
 // 기능 상세 보기 페이지
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import StatusBadge from '../../components/ui/StatusBadge/Statusbadge'
 import { CheckCircleIcon, GithubIcon, LinkIcon } from '../../components/ui/icons/FeatureIcon'
 import { mockFeatureDetail } from '../../mocks/featuredetail'
@@ -12,6 +13,7 @@ const SOURCE_LABEL = {
 
 function FeatureDetail() {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const lang = i18n.language === 'en' ? 'en' : 'ko'
   const feature = mockFeatureDetail
 
@@ -24,6 +26,7 @@ function FeatureDetail() {
         </h1>
         <button
           type="button"
+          onClick={() => navigate('/qa')}
           className="h-10.5 w-55 shrink-0 rounded-[10px] bg-charcoal text-[15px] font-bold text-milk"
         >
           {t('featureDetail.ask')}
@@ -63,8 +66,8 @@ function FeatureDetail() {
               className="flex h-20 items-center gap-6 rounded-[8px] bg-milk px-7.5"
             >
               <div className="min-w-0 flex-1">
-                <p className="mb-1 truncate text-[20px] font-semibold text-chacoal">{item.title[lang]}</p>
-                <p className="text-[16px] font-semibold text-chacoal">{item.meta[lang]}</p>
+                <p className="mb-1 truncate text-[20px] font-semibold text-charcoal">{item.title[lang]}</p>
+                <p className="text-[16px] font-semibold text-charcoal">{item.meta[lang]}</p>
               </div>
               <a
                 href={item.url}
