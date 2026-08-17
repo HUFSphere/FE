@@ -1,16 +1,25 @@
 // 로그인 페이지
-//
-// - 아이콘/일러스트: 피그마 export SVG를 public에 추가하지 않고 이 파일에 인라인
-// - 배경 장식: decor 폴더에 새 파일을 만들지 않고 이 파일에 인라인
-//   (도형 자체는 기존 components/ui/decor/linkboard-decor-kit.svg의 것과 동일)
-// - 로고: 기존 public/linkboard_icon.svg 사용
 
 import { useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 
-/* 구글 아이콘 (피그마 export) */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0 },
+}
+const fadeScale = {
+  hidden: { opacity: 0, scale: 0.96 },
+  show: { opacity: 1, scale: 1 },
+}
+const staggerParent = (stagger = 0.1, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
+/* 구글 아이콘 */
 function GoogleIcon() {
   return (
     <svg
@@ -32,7 +41,7 @@ function GoogleIcon() {
   )
 }
 
-/* 우측 패널 일러스트 (피그마 export) */
+/* 우측 패널 일러스트 */
 function SignInIllustration() {
   const { t } = useTranslation()
 
@@ -141,9 +150,6 @@ function SignInIllustration() {
   )
 }
 
-/* 배경 장식 — 좌측 영역(시안 1920 중 1270px)만 덮으므로 1270x1080 viewBox를 씁니다.
-   slice = 상자를 채우고 넘치는 쪽은 중앙 기준으로 잘림 (object-cover와 동일)
-   각 g의 transform은 decor-kit 원본 좌표를 시안 위치로 옮기는 값입니다. */
 function SignInDecor() {
   return (
     <svg
@@ -214,7 +220,7 @@ function SignInDecor() {
   )
 }
 
-/* 라벨 + 인풋 한 쌍 */
+/* 라벨 + 인풋 */
 function Field({
   id,
   label,
@@ -231,7 +237,7 @@ function Field({
   autoComplete: string
 }) {
   return (
-    <div className="flex w-full flex-col">
+    <motion.div variants={fadeUp} className="flex w-full flex-col">
       <label htmlFor={id} className="flex h-6.25 items-center text-[20px] font-medium text-taupe">
         {label}
       </label>
@@ -243,7 +249,7 @@ function Field({
         autoComplete={autoComplete}
         className="h-15 w-full rounded-[10px] border border-taupe bg-white px-4.5 text-[20px] text-dark-lava outline-none transition-colors focus:border-mocha"
       />
-    </div>
+    </motion.div>
   )
 }
 
@@ -262,32 +268,46 @@ function SignIn() {
 
   return (
     <div className="flex min-h-screen bg-milk">
-      {/* 좌측: 로고 + 로그인 폼 (시안 1920 중 1270px 영역) */}
+      {/* 좌측: 로고 + 로그인 폼 */}
       <div className="relative grid flex-1 place-items-center overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <SignInDecor />
         </div>
 
         {/* 로고 */}
-        <div className="absolute left-8.75 top-8.75 flex items-center gap-5">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute left-8.75 top-8.75 flex items-center gap-5"
+        >
           <img src="/linkboard_icon.svg" alt="" aria-hidden className="h-17.5 w-17.5" />
           <span className="text-[32px] font-extrabold tracking-tight text-mocha">LinkBoard</span>
-        </div>
+        </motion.div>
 
-        <div className="relative flex w-125 flex-col gap-7.5">
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={staggerParent(0.12, 0.1)}
+          className="relative flex w-125 flex-col gap-7.5"
+        >
           {/* 인사 문구 */}
-          <div className="flex flex-col items-center text-center">
-            <h1 className="text-[50px] font-extrabold leading-[70px] text-dark-lava">
+          <motion.div variants={fadeUp} className="flex flex-col items-center text-center">
+            <h1 className="text-[50px] font-extrabold leading-17.5 text-dark-lava">
               {t('signIn.title')}
             </h1>
-            <p className="text-[20px] font-medium leading-[27px] text-mocha">
+            <p className="text-[20px] font-medium leading-6.75 text-mocha">
               {t('signIn.subtitle')}
             </p>
-          </div>
+          </motion.div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-7.5">
+          <motion.form
+            variants={staggerParent(0.1)}
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-7.5"
+          >
             {/* 입력 */}
-            <div className="flex flex-col">
+            <motion.div variants={staggerParent(0.08)} className="flex flex-col">
               <Field
                 id="signin-email"
                 label={t('signIn.email')}
@@ -304,19 +324,21 @@ function SignIn() {
                 onChange={setPassword}
                 autoComplete="current-password"
               />
-            </div>
+            </motion.div>
 
             {/* 로그인 버튼 */}
-            <button
+            <motion.button
+              variants={fadeUp}
               type="submit"
               className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-milk"
             >
               {t('signIn.submit')}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
           {/* 구글 로그인 */}
-          <button
+          <motion.button
+            variants={fadeUp}
             type="button"
             // TODO: 구글 OAuth 연동
             onClick={() => navigate('/onboarding/language')}
@@ -324,21 +346,31 @@ function SignIn() {
           >
             <GoogleIcon />
             {t('signIn.google')}
-          </button>
+          </motion.button>
 
           {/* 회원가입 안내 */}
-          <p className="text-center text-[20px] font-light leading-[25px] text-black">
+          <motion.p
+            variants={fadeUp}
+            className="text-center text-[20px] font-light leading-6.25 text-black"
+          >
             {t('signIn.noAccount')}{' '}
             <Link to="/sign-up" className="font-semibold text-mocha underline">
               {t('signIn.signUp')}
             </Link>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* 우측: 디자인 패널 */}
       <aside className="grid w-162.5 shrink-0 place-items-center bg-oat">
-        <SignInIllustration />
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={fadeScale}
+          transition={{ duration: 0.7, delay: 0.2 }}
+        >
+          <SignInIllustration />
+        </motion.div>
       </aside>
     </div>
   )

@@ -6,6 +6,7 @@ import Avatar from '../ui/icons/Avatar'
 import { motion } from 'framer-motion'
 import { mockUser } from '../../mocks/user'
 import SidebarDecor from '../ui/decor/SidebarDecor'
+import { getUiLang } from '../../utils/lang'
 
 const menuItems = [
   { key: 'sidebar.map', path: '/map', Icon: MapIcon },
@@ -17,10 +18,10 @@ const menuItems = [
 
 function Sidebar() {
     const { t, i18n } = useTranslation()
-    const lang = i18n.language as 'ko' | 'en'
+    const lang = getUiLang(i18n.language)
     const displayName =
     lang === 'en' && mockUser.name.en.length > 10
-      ? mockUser.name.en.split(' ')[0] // 이름(First name)만
+      ? mockUser.name.en.split(' ')[0]
       : mockUser.name[lang]
 
   return (

@@ -44,20 +44,20 @@ function Header() {
       <ActionModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
-        title="로그아웃"
+        title={t('header.logoutModal.title')}
         icon={<LogoutIcon className="h-17.5 w-17.5 text-mocha" />}
         message={{
-          title: '정말 로그아웃 하시겠어요?',
-          description: '로그아웃하면 다시 로그인해야 서비스를 이용할 수 있어요.',
+          title: t('header.logoutModal.confirmTitle'),
+          description: t('header.logoutModal.confirmDesc'),
         }}
         buttons={[
           {
-            label: '로그아웃',
+            label: t('header.logoutModal.confirm'),
             variant: 'primary',
             onClick: handleConfirmLogout,
           },
           {
-            label: '취소',
+            label: t('header.logoutModal.cancel'),
             variant: 'secondary',
             onClick: () => setIsLogoutModalOpen(false),
           },
