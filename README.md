@@ -3,7 +3,6 @@
 GitHub / Figma / Notion에 흩어진 팀 기록을 하나로 모아 보여주는 LinkBoard 서비스의 프론트엔드입니다.
 
 **배포 주소**: https://hufsphere-linkboard.vercel.app  
-현재 온보딩 페이지가 개발되지 않아 메인 페이지를 확인할 수 없으므로, 필요한 경우 주소 뒤에 `/map` 등을 붙여 확인해 주세요.
 
 ## 기술 스택
 
