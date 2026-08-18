@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { getNodesBounds, useNodes, useReactFlow, useStore, useViewport } from '@xyflow/react'
+import { useNodes, useReactFlow, useStore, useViewport } from '@xyflow/react'
 
 const PADDING = 120
 
@@ -7,7 +7,7 @@ type Axis = 'x' | 'y'
 
 function MapScrollbars() {
   const { x, y, zoom } = useViewport()
-  const { setViewport } = useReactFlow()
+  const { setViewport, getNodesBounds } = useReactFlow()
   const nodes = useNodes()
   const width = useStore((s) => s.width)
   const height = useStore((s) => s.height)

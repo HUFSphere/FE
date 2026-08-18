@@ -9,6 +9,7 @@
   "header": {
     "lastSynced": "마지막 동기화: {{time}}",
     "notification": "알림",
+    "notificationEmpty": "아직 새로운 알림이 없어요.",
     "logout": "로그아웃",
     "logoutModal": {
       "title": "로그아웃",
