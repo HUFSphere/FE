@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 export type Status = 'todo' | 'progress' | 'review' | 'done' | 'blocked'
 
 const VARIANTS: Record<Status, string> = {
-  todo: 'bg-milk border-almond-milk text-taupe',
-  review: 'bg-milk border-mocha text-mocha',
+  todo: 'bg-milk border-mocha text-mocha',
+  review: 'bg-taupe border-mocha text-milk',
   progress: 'bg-taupe border-mocha text-milk',
-  done: 'bg-mocha border-dark-lava text-milk',
+  done: 'bg-taupe border-mocha text-milk',
   blocked: 'bg-charcoal border-charcoal text-milk',
 }
 
