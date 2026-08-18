@@ -52,12 +52,12 @@ function Header() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.96 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full z-40 mt-3 w-80 rounded-[10px] border border-taupe bg-milk p-4 shadow-lg"
-                  >
-                    <p className="mb-3 text-base font-bold text-dark-lava">{t('header.notification')}</p>
-                    <p className="text-sm text-taupe">
+                    className="absolute right-0 top-full z-40 mt-3 w-105 rounded-[10px] border-[1.5px] border-taupe bg-milk p-6 shadow-lg"
+                   >
+                    <p className="mb-4 text-xl font-bold text-dark-lava">{t('header.notification')}</p>
+                    <p className="text-base text-taupe">
                       {/* TODO: 실제 알림 API 연동 전까지의 플레이스홀더 */}
-                      아직 새로운 알림이 없어요.
+                      {t('header.notificationEmpty')}
                     </p>
                   </motion.div>
                 </>

@@ -2,6 +2,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Background,
   BackgroundVariant,
@@ -28,7 +29,19 @@ import { mockMapDetail, mockMapEdges, mockMapNodes } from '../../mocks/map'
 const NODE_WIDTH = 240
 const NODE_HEIGHT = 60
 
+/* 지도 패널 폭 — 헤더 버튼 정렬 기준 */
+const MAP_WIDTH = 'w-[1050px]'
+
 const nodeTypes = { feature: FeatureNode }
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+}
+const staggerParent = (stagger = 0.12, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
 
 function layout(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph()
@@ -49,6 +62,12 @@ function layout(nodes: Node[], edges: Edge[]) {
   })
 }
 
+const detailPanelVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { staggerChildren: 0.08 } },
+  exit: { opacity: 0, y: -12, transition: { duration: 0.2 } },
+}
+
 function ProjectMap() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -64,6 +83,8 @@ function ProjectMap() {
       type: 'feature',
       position: { x: 0, y: 0 },
       data: { label: n.label[lang], tone: n.tone },
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
       sourcePosition: undefined,
       targetPosition: undefined,
     }))
@@ -92,31 +113,43 @@ function ProjectMap() {
   const DetailIcon = detail ? SOURCE_ICON[detail.source] : null
 
   return (
-    <div className="mx-auto w-full max-w-[1489px]">
-      {/* 제목 + 버튼들 */}
-      <div className="mb-3 flex items-center gap-2.5">
-        <h1 className="text-[40px] font-bold tracking-tight text-dark-lava">
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={staggerParent(0.15)}
+        className="mx-auto w-full max-w-372.25"
+      >
+      {/* 제목  버튼들 */}
+      <motion.div variants={staggerParent(0.1)} className={`mb-3 flex ${MAP_WIDTH} items-center gap-2.5`}>
+        <motion.h1 variants={fadeUp} className="text-2xl font-bold tracking-tight text-dark-lava">
           {t('map.title')}
-        </h1>
+        </motion.h1>
 
-        <button
+        <motion.button
+          variants={fadeUp}
           type="button"
           onClick={() => navigate('/overview')}
-          className="ml-auto h-[50px] w-[218px] shrink-0 rounded-[10px] bg-almond-milk text-[20px] font-bold text-dark-lava hover:bg-oat"
-        >
+          className="ml-auto h-9.5 w-40 shrink-0 rounded-lg bg-almond-milk text-sm font-bold text-dark-lava hover:bg-oat"
+         >
           {t('map.overview')}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          variants={fadeUp}
           type="button"
-          className="flex h-[50px] w-[150px] shrink-0 items-center justify-center gap-2 rounded-[10px] bg-dark-lava text-[20px] font-bold text-milk hover:bg-mocha"
-        >
+          className="flex h-9.5 w-28 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-dark-lava text-sm font-bold text-milk hover:bg-mocha"
+         >
           {t('map.sync')}
-          <ReloadIcon className="h-5 w-5" />
-        </button>
-      </div>
+          <ReloadIcon className="h-3.5 w-3.5" />
+        </motion.button>
+      </motion.div>
 
-      <div className="grid grid-cols-[1047fr_420fr] gap-[22px]">
-        <div className="relative h-[760px] w-[1050px] overflow-hidden rounded-[7px] border-[3px] border-taupe bg-milk">
+      <div className="grid grid-cols-[1047fr_420fr] gap-5.5">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className={`relative h-190 ${MAP_WIDTH} overflow-hidden rounded-[7px] border-[3px] border-taupe bg-milk`}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -148,102 +181,126 @@ function ProjectMap() {
             selectLabel={t('map.cursorSelect')}
             panLabel={t('map.cursorPan')}
           />
-        </div>
+        </motion.div>
 
         {/* 요약 카드 */}
-        <aside className="flex h-[760px] w-[420px] flex-col overflow-y-auto rounded-[8px] bg-oat px-5 py-5">
-          {detail ? (
-            <>
-              <div className="mb-2.5 flex items-center gap-2">
-                {DetailIcon && <DetailIcon className="h-7 w-7 shrink-0 text-dark-lava" />}
-                <h2 className="text-[25px] font-bold text-dark-lava">{detail.title[lang]}</h2>
-              </div>
+        <aside className="flex h-190 w-105 flex-col gap-5 overflow-y-auto rounded-lg bg-oat px-5 py-5">
+          <AnimatePresence mode="wait">
+            {detail ? (
+              <motion.div
+                key={selected}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                variants={detailPanelVariants}
+                className="flex flex-1 flex-col gap-5"
+              >
+                <motion.div variants={fadeUp} className="flex items-center gap-2">
+                  {DetailIcon && <DetailIcon className="h-7 w-7 shrink-0 text-dark-lava" />}
+                  <h2 className="text-xl font-bold text-dark-lava">{detail.title[lang]}</h2>
+                </motion.div>
 
-              {/* 진척률 + 상태 */}
-              <div className="mb-2 flex items-center gap-1.5">
-                <span className="grid h-8 w-15 place-items-center rounded-[8px] bg-milk text-[15px] font-bold text-dark-lava">
-                  {detail.progress}%
-                </span>
-                <StatusBadge status={detail.status} />
-              </div>
+                 {/* 진척률  상태  진척 바 */}
+                <motion.div variants={fadeUp} className="flex flex-col gap-2.5">
+                   <div className="flex items-center gap-1.5">
+                     <span className="grid h-8 w-15 place-items-center rounded-lg bg-milk text-[15px] font-bold text-dark-lava">
+                       {detail.progress}%
+                     </span>
+                     <StatusBadge status={detail.status} />
+                   </div>
 
-              {/* 진척 바 */}
-              <div className="mb-4 h-[10px] w-full overflow-hidden rounded-[5px] bg-milk">
-                <div
-                  className="h-full rounded-[10px] bg-mocha"
-                  style={{ width: `${detail.progress}%` }}
-                />
-              </div>
+                   <div className="h-2 w-full overflow-hidden rounded-full bg-milk">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${detail.progress}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                       className="h-full rounded-full bg-mocha"
+                     />
+                   </div>
+                </motion.div>
 
-              {/* 한 줄 요약 */}
-              <p className="mb-1.5 text-[20px] font-semibold text-dark-lava">{t('map.summary')}</p>
-              <p className="mb-4 rounded-[10px] bg-milk px-3.5 py-2.5 text-[15px] font-medium leading-relaxed text-charcoal">
-                {detail.summary[lang]}
-              </p>
+                 {/* 한 줄 요약 */}
+                <motion.div variants={fadeUp} className="flex flex-col gap-2">
+                   <p className="text-base font-semibold text-dark-lava">{t('map.summary')}</p>
+                   <p className="rounded-[10px] bg-milk px-3.5 py-3 text-sm leading-relaxed text-taupe">
+                     {detail.summary[lang]}
+                   </p>
+                </motion.div>
 
-              {/* 연결된 항목 */}
-              <p className="mb-2 text-[20px] font-semibold text-dark-lava">
-                {t('map.linked', { count: detail.items.length })}
-              </p>
+                 {/* 연결된 항목 */}
+                <motion.div variants={fadeUp} className="flex flex-col gap-3">
+                   <p className="text-base font-semibold text-dark-lava">
+                     {t('map.linked', { count: detail.items.length })}
+                   </p>
 
-              <div className="mb-2.5 flex gap-2.5">
-                {detail.counts.map((c) => (
-                  <span
-                    key={c.source}
-                    className="grid h-[25px] w-[80px] place-items-center rounded-[8px] bg-milk text-[13px] font-semibold tracking-wide text-taupe uppercase"
-                  >
-                    {c.source} {c.count}
-                  </span>
-                ))}
-              </div>
+                  <motion.div variants={staggerParent(0.05)} className="flex gap-2.5">
+                     {detail.counts.map((c) => (
+                      <motion.span
+                         key={c.source}
+                        variants={fadeUp}
+                         className="grid h-6.25 w-20 place-items-center rounded-lg bg-milk text-sm font-semibold tracking-wide text-mocha uppercase"
+                       >
+                         {c.source} {c.count}
+                      </motion.span>
+                     ))}
+                  </motion.div>
 
-              <ul className="flex flex-col gap-2.5">
-                {detail.items.map((item) => {
-                  const Icon = SOURCE_ICON[item.source]
-                  return (
-                    <li
-                      key={item.id}
-                      className="flex h-10 items-center gap-2 rounded-[8px] bg-milk px-3"
-                    >
-                      <Icon className="h-5 w-5 shrink-0 text-charcoal" />
-                      <span className="flex-1 truncate text-[15px] font-semibold text-charcoal">
-                        {item.title[lang]}
-                      </span>
-                      <span className="shrink-0 text-[12px] font-medium text-taupe">
-                        {item.date}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
+                  <motion.ul variants={staggerParent(0.05)} className="flex flex-col gap-3">
+                     {detail.items.map((item) => {
+                       const Icon = SOURCE_ICON[item.source]
+                       return (
+                        <motion.li
+                           key={item.id}
+                          variants={fadeUp}
+                           className="flex h-11 items-center gap-2 rounded-lg bg-milk px-3"
+                         >
+                           <Icon className="h-5 w-5 shrink-0 text-dark-lava" />
+                           <span className="flex-1 truncate text-sm font-semibold text-mocha">
+                             {item.title[lang]}
+                           </span>
+                           <span className="shrink-0 text-xs font-medium text-taupe">
+                             {item.date}
+                           </span>
+                        </motion.li>
+                       )
+                     })}
+                  </motion.ul>
+                </motion.div>
 
-              {/* 액션 */}
-              <div className="mt-auto flex flex-col gap-2.5 pt-5">
-                <button
-                  type="button"
-                  onClick={() => navigate(`/features/${selected}`)}
-                  className="h-10 w-full rounded-[8px] bg-dark-lava text-[15px] font-semibold text-milk hover:bg-mocha"
-                >
-                  {t('map.detail')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate('/qa')}
-                  className="h-10 w-full rounded-[8px] bg-milk text-[15px] font-semibold text-dark-lava hover:bg-almond-milk"
-                >
-                  {t('map.ask')}
-                </button>
-              </div>
-            </>
-          ) : (
-            /* 아무 노드도 고르지 않은 상태 */
-            <p className="m-auto text-center text-[15px] font-medium text-mocha">
-              {t('map.empty')}
-            </p>
-          )}
+                 {/* 액션 */}
+                <motion.div variants={fadeUp} className="mt-auto flex flex-col gap-3 pt-5">
+                   <button
+                     type="button"
+                     onClick={() => navigate(`/features/${selected}`)}
+                     className="h-11 w-full rounded-lg bg-dark-lava text-sm font-semibold text-milk hover:bg-mocha"
+                   >
+                     {t('map.detail')}
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => navigate('/qa')}
+                     className="h-11 w-full rounded-lg bg-milk text-sm font-semibold text-dark-lava hover:bg-almond-milk"
+                   >
+                     {t('map.ask')}
+                   </button>
+                </motion.div>
+              </motion.div>
+            ) : (
+              /* 아무 노드도 고르지 않은 상태 */
+              <motion.p
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="m-auto text-center text-[15px] font-medium text-mocha"
+              >
+                {t('map.empty')}
+              </motion.p>
+            )}
+          </AnimatePresence>
         </aside>
-      </div>
-    </div>
+       </div>
+    </motion.div>
   )
 }
 

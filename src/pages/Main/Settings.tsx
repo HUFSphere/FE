@@ -1,12 +1,22 @@
 // 환경 설정 페이지
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { ChevronDownIcon } from '../../components/ui/icons/FeatureIcon'
 import { mockToneInstruction, mockTonePresets } from '../../mocks/settings'
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+}
+const staggerParent = (stagger = 0.12, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
 /* 카드 제목 */
 function CardTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-[28px] font-semibold text-dark-lava">{children}</h2>
+  return <h2 className="text-xl font-semibold text-dark-lava">{children}</h2>
 }
 
 function PresetCheckbox({
@@ -19,7 +29,7 @@ function PresetCheckbox({
   children: React.ReactNode
 }) {
   return (
-    <label className="flex h-10 w-37.5 shrink-0 cursor-pointer items-center gap-2.5 rounded-[6px] border-2 border-taupe bg-milk px-5.5 text-[15px] font-semibold text-mocha">
+    <label className="flex h-10 w-37.5 shrink-0 cursor-pointer items-center gap-2.5 rounded-md border-2 border-taupe bg-milk px-5.5 text-base font-semibold text-mocha">
       <span className="relative grid h-5.5 w-5.5 shrink-0 place-items-center">
         <input
           type="checkbox"
@@ -81,18 +91,23 @@ function Settings() {
   const save = () => setSaved(true)
 
   return (
-    <div className="mx-auto w-full max-w-[1479px]">
-      <h1 className="mb-4 text-[40px] font-semibold tracking-tight text-dark-lava">
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={staggerParent(0.15)}
+      className="mx-auto w-full max-w-369.75"
+    >
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-semibold tracking-tight text-dark-lava">
         {t('settings.title')}
-      </h1>
+      </motion.h1>
 
       {/* 언어 변경 */}
-      <section className="mb-3.25 rounded-[10px] bg-oat px-6 pt-3.5 pb-6">
+      <motion.section variants={fadeUp} className="mb-3.25 rounded-[10px] bg-oat px-6 pt-3.5 pb-6">
         <div className="mb-1.5">
           <CardTitle>{t('settings.language')}</CardTitle>
         </div>
 
-        <label htmlFor="ui-lang" className="mb-2 block text-[24px] font-semibold text-mocha">
+        <label htmlFor="ui-lang" className="mb-2 block text-base font-semibold text-mocha">
           {t('settings.uiLanguage')}
         </label>
 
@@ -101,29 +116,29 @@ function Settings() {
             id="ui-lang"
             value={uiLang}
             onChange={(e) => changeLanguage(e.target.value)}
-            className="h-11.5 w-full appearance-none rounded-[10px] border border-taupe bg-milk pr-12 pl-4.5 text-[16px] font-semibold text-taupe focus:border-mocha focus:outline-none"
+            className="h-11.5 w-full appearance-none rounded-[10px] border border-taupe bg-milk pr-12 pl-4.5 text-sm font-semibold text-mocha focus:border-mocha focus:outline-none"
           >
             <option value="ko">한국어</option>
             <option value="en">English</option>
           </select>
-          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-taupe" />
+          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-mocha" />
         </div>
-      </section>
+      </motion.section>
 
       {/* AI 답변 톤 설정 */}
-      <section className="rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
+      <motion.section variants={fadeUp} className="rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-3 flex items-end">
           <div>
             <div className="mb-0.5">
               <CardTitle>{t('settings.tone')}</CardTitle>
             </div>
-            <p className="text-[18px] font-semibold text-mocha">{t('settings.toneDesc')}</p>
+            <p className="text-sm font-semibold text-mocha">{t('settings.toneDesc')}</p>
           </div>
 
           <button
             type="button"
             onClick={save}
-            className="ml-auto h-[38px] w-[100px] shrink-0 rounded-[10px] bg-charcoal text-[18px] font-semibold text-milk hover:bg-mocha"
+            className="ml-auto h-9.5 w-25 shrink-0 rounded-[10px] bg-charcoal text-base font-semibold text-milk hover:bg-mocha"
           >
             {saved ? t('settings.saved') : t('settings.save')}
           </button>
@@ -138,22 +153,22 @@ function Settings() {
             setSaved(false)
           }}
           aria-label={t('settings.tone')}
-          className="mb-2.5 h-96.5 w-full resize-none rounded-[10px] border-2 border-mocha bg-milk p-5 text-[20px] font-semibold leading-relaxed text-mocha placeholder-mocha focus:border-mocha focus:outline-none"
+          className="mb-2.5 h-96.5 w-full resize-none rounded-[10px] border-2 border-mocha bg-milk p-5 text-base leading-relaxed text-mocha placeholder-mocha focus:border-mocha focus:outline-none"
         />
 
         {/* 프리셋 */}
         <p className="mb-2 text-[16px] font-semibold text-mocha">{t('settings.presets')}</p>
-        <ul className="flex flex-wrap gap-2.75">
+        <motion.ul variants={staggerParent(0.05)} className="flex flex-wrap gap-2.75">
           {mockTonePresets.map((p) => (
-            <li key={p.id}>
+            <motion.li key={p.id} variants={fadeUp}>
               <PresetCheckbox checked={presets.includes(p.id)} onChange={() => togglePreset(p.id)}>
                 {p.label[lang]}
               </PresetCheckbox>
-            </li>
+            </motion.li>
           ))}
-        </ul>
-      </section>
-    </div>
+        </motion.ul>
+      </motion.section>
+    </motion.div>
   )
 }
 
