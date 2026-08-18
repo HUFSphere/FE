@@ -88,7 +88,7 @@ function FeatureList() {
       variants={staggerParent(0.15)}
       className="mx-auto w-full max-w-366"
     >
-      <motion.h1 variants={fadeUp} className="mb-4 text-[28px] font-extrabold tracking-tight text-dark-lava">
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-bold tracking-tight text-dark-lava">
         {t('featureList.title')}
       </motion.h1>
 
@@ -148,13 +148,13 @@ function FeatureList() {
                     <p className="truncate text-xl font-bold text-charcoal">{item.title[lang]}</p>
                     <StatusBadge status={item.status} />
                   </div>
-                  <p className="truncate text-[15px] font-semibold text-charcoal">{item.meta[lang]}</p>
+                  <p className="truncate text-sm font-bold text-charcoal">{item.meta[lang]}</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => navigate(`/features/${item.id}`)}
-                  className="h-12 w-35 shrink-0 rounded-lg bg-charcoal text-[15px] font-bold text-milk"
+                  className="h-9.5 w-30 shrink-0 rounded-lg bg-charcoal text-sm font-bold text-milk"
                 >
                   {t('featureList.detail')}
                 </button>

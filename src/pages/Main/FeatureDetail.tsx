@@ -36,13 +36,13 @@ function FeatureDetail() {
     >
       {/* 기능 상세 보기 제목과 질문하기 버튼 */}
       <motion.div variants={fadeUp} className="mb-3.5 flex items-center justify-between">
-        <h1 className="text-[28px] font-extrabold tracking-tight text-charcoal">
+        <h1 className="text-2xl font-bold tracking-tight text-dark-lava">
           {t('featureDetail.breadcrumb')}
         </h1>
         <button
           type="button"
           onClick={() => navigate('/qa')}
-          className="h-10.5 w-55 shrink-0 rounded-[10px] bg-charcoal text-[15px] font-bold text-milk"
+          className="h-9.5 w-50 shrink-0 rounded-[10px] bg-charcoal text-sm font-bold text-milk"
         >
           {t('featureDetail.ask')}
         </button>
@@ -51,8 +51,8 @@ function FeatureDetail() {
       {/* 요약 카드 */}
       <motion.section variants={fadeUp} className="mb-2 rounded-[10px] bg-almond-milk px-5 pt-5 pb-6">
         <div className="mb-2.5 flex items-center gap-2.5">
-          <GithubIcon className="h-6 w-6 shrink-0 text-charcoal" />
-          <h2 className="text-xl font-semibold text-charcoal">{feature.title[lang]}</h2>
+          <GithubIcon className="h-6 w-6 shrink-0 text-dark-lava" />
+          <h2 className="text-xl font-semibold text-dark-lava">{feature.title[lang]}</h2>
 
           {/* 진행도  상태 */}
           <div className="mr-6.75 ml-auto flex h-12.5 w-50 items-center justify-center gap-3 rounded-lg bg-milk">
@@ -62,7 +62,7 @@ function FeatureDetail() {
           </div>
         </div>
 
-        <p className="mx-6.75hitespace-pre-line rounded-lg bg-milk px-6 py-3.5 text-[15px] font-semibold leading-relaxed text-charcoal">
+        <p className="mx-6.75 whitespace-pre-line rounded-lg bg-milk px-6 py-4 text-sm leading-relaxed text-taupe">
           {feature.summary[lang]}
         </p>
       </motion.section>
@@ -70,8 +70,8 @@ function FeatureDetail() {
       {/* 연결된 항목 */}
       <motion.section variants={fadeUp} className="mb-2 rounded-[10px] bg-oat px-5 pt-5 pb-6">
         <div className="mb-4.5 flex items-center gap-2.5">
-          <LinkIcon className="h-6 w-6 shrink-0 text-charcoal" />
-          <h2 className="text-xl font-bold text-charcoal">{t('featureDetail.linked')}</h2>
+          <LinkIcon className="h-6 w-6 shrink-0 text-dark-lava" />
+          <h2 className="text-xl font-bold text-dark-lava">{t('featureDetail.linked')}</h2>
         </div>
 
         <motion.ul
@@ -87,12 +87,12 @@ function FeatureDetail() {
               className="flex h-20 items-center gap-6 rounded-lg bg-milk px-7.5"
             >
               <div className="min-w-0 flex-1">
-                <p className="mb-1 truncate text-[20px] font-semibold text-charcoal">{item.title[lang]}</p>
-                <p className="text-[16px] font-semibold text-charcoal">{item.meta[lang]}</p>
+                <p className="mb-1 truncate text-lg font-semibold text-charcoal">{item.title[lang]}</p>
+                <p className="text-sm font-semibold text-mocha">{item.meta[lang]}</p>
               </div>
               <a
                 href={item.url}
-                className="shrink-0 text-[15px] font-semibold text-mocha underline underline-offset-4 hover:text-dark-lava"
+                className="shrink-0 text-base text-taupe underline underline-offset-4 hover:text-dark-lava"
               >
                 {t('featureDetail.viewOn', { source: SOURCE_LABEL[item.source] })}
               </a>
@@ -108,7 +108,7 @@ function FeatureDetail() {
           <h2 className="text-xl font-bold text-charcoal">{t('featureDetail.evidence')}</h2>
         </div>
 
-        <p className="mx-6.75 whitespace-pre-line rounded-lg bg-milk px-6 py-4 text-[15px] font-semibold leading-relaxed text-charcoal">
+        <p className="mx-6.75 whitespace-pre-line rounded-lg bg-milk px-6 py-4 text-sm leading-relaxed text-taupe">
           {feature.evidence[lang]}
         </p>
       </motion.section>

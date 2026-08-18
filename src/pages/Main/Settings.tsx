@@ -97,7 +97,7 @@ function Settings() {
       variants={staggerParent(0.15)}
       className="mx-auto w-full max-w-369.75"
     >
-      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-semibold tracking-tight text-dark-lava">
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-bold tracking-tight text-dark-lava">
         {t('settings.title')}
       </motion.h1>
 
@@ -116,12 +116,12 @@ function Settings() {
             id="ui-lang"
             value={uiLang}
             onChange={(e) => changeLanguage(e.target.value)}
-            className="h-11.5 w-full appearance-none rounded-[10px] border border-taupe bg-milk pr-12 pl-4.5 text-sm font-semibold text-mocha focus:border-mocha focus:outline-none"
+            className="h-11.5 w-full appearance-none rounded-[10px] border border-taupe bg-milk pr-12 pl-4.5 text-base font-semibold text-dark-lava focus:border-mocha focus:outline-none"
           >
             <option value="ko">한국어</option>
             <option value="en">English</option>
           </select>
-          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-mocha" />
+          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-dark-lava" />
         </div>
       </motion.section>
 
@@ -138,7 +138,7 @@ function Settings() {
           <button
             type="button"
             onClick={save}
-            className="ml-auto h-9.5 w-25 shrink-0 rounded-[10px] bg-charcoal text-base font-semibold text-milk hover:bg-mocha"
+            className="ml-auto h-9.5 w-20 shrink-0 rounded-[10px] bg-charcoal text-sm font-semibold text-milk hover:bg-mocha"
           >
             {saved ? t('settings.saved') : t('settings.save')}
           </button>
@@ -157,7 +157,7 @@ function Settings() {
         />
 
         {/* 프리셋 */}
-        <p className="mb-2 text-[16px] font-semibold text-mocha">{t('settings.presets')}</p>
+        <p className="mb-2 text-lg font-semibold text-mocha">{t('settings.presets')}</p>
         <motion.ul variants={staggerParent(0.05)} className="flex flex-wrap gap-2.75">
           {mockTonePresets.map((p) => (
             <motion.li key={p.id} variants={fadeUp}>
