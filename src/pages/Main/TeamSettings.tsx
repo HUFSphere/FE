@@ -1,6 +1,7 @@
 // 팀 설정 페이지
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion, AnimatePresence } from 'framer-motion'
 import { SOURCE_ICON } from '../../components/ui/icons/FeatureIcon'
 import ActionModal from '../../components/ui/modal/ActionModal'
 import {
@@ -18,9 +19,18 @@ import {
 } from '../../mocks/team'
 import type { Connection, Member } from '../../mocks/team'
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+}
+const staggerParent = (stagger = 0.12, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
 /* 카드 제목 */
 function CardTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-[24px] font-semibold text-dark-lava">{children}</h2>
+  return <h2 className="text-xl font-semibold text-dark-lava">{children}</h2>
 }
 
 /* 팀원 카드 */
@@ -36,23 +46,30 @@ function MemberCard({
   removeLabel?: string
 }) {
   return (
-    <div className="relative flex h-23 w-60 shrink-0 items-center gap-4 rounded-[6px] bg-taupe px-6">
-      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-milk text-[14px] font-medium text-taupe">
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.2 }}
+      className="relative flex h-23 w-60 shrink-0 items-center gap-4 rounded-md bg-taupe px-6"
+    >
+      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-milk text-base font-medium text-taupe">
         Aa
       </div>
-      <span className="truncate text-[20px] font-semibold text-charcoal">{member.name[lang]}</span>
+      <span className="truncate text-lg font-semibold text-charcoal">{member.name[lang]}</span>
 
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           aria-label={removeLabel}
-          className="absolute top-1.5 right-2.5 text-[15px] font-bold text-dark-lava hover:text-milk"
+          className="absolute top-1.5 right-2.5 text-sm font-bold text-dark-lava hover:text-milk"
         >
           ✕
         </button>
       )}
-    </div>
+    </motion.div>
   )
 }
 
@@ -66,7 +83,7 @@ function ConnectionBadge({
   onClick?: () => void
   children: React.ReactNode
 }) {
-  const style = `grid h-9 w-35.5 shrink-0 place-items-center text-[16px] font-semibold ${
+  const style = `grid h-9.5 w-30 shrink-0 place-items-center text-sm font-semibold ${
     connected
       ? 'rounded-[8px] bg-charcoal text-milk'
       : 'rounded-[8px] border-2 border-taupe bg-milk text-mocha'
@@ -133,60 +150,67 @@ function TeamSettings() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1479px]">
-      <h1 className="mb-4 text-[28px] font-extrabold tracking-tight text-dark-lava">
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={staggerParent(0.15)}
+      className="mx-auto w-full max-w-369.75"
+    >
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-extrabold tracking-tight text-dark-lava">
         {t('teamSettings.title')}
-      </h1>
+      </motion.h1>
 
       {/* 팀 설정 */}
-      <section className="mb-4.25 rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
+      <motion.section variants={fadeUp} className="mb-4.25 rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-2.5 flex items-center">
           <CardTitle>{t('teamSettings.members')}</CardTitle>
           <button
             type="button"
             onClick={openInvite}
-            className="ml-auto h-9 w-29.5 rounded-[9px] bg-milk text-[14px] font-semibold text-mocha border-2 border-taupe hover:bg-oat"
+            className="ml-auto h-9.5 w-30 rounded-[9px] bg-milk text-sm font-semibold text-mocha border-2 border-taupe hover:bg-oat"
           >
             {t('teamSettings.addMember')}
           </button>
         </div>
 
         {/* 팀장 */}
-        <p className="mb-2 text-[18px] font-semibold text-mocha">{t('teamSettings.leader')}</p>
-        <div className="mb-3.5">
+        <p className="mb-2 text-lg font-semibold text-mocha">{t('teamSettings.leader')}</p>
+        <motion.div variants={fadeUp} className="mb-3.5">
           <MemberCard member={mockLeader} lang={lang} />
-        </div>
+        </motion.div>
 
         {/* 팀원 */}
-        <p className="mb-2 text-[18px] font-semibold text-mocha">{t('teamSettings.member')}</p>
-        <ul className="flex flex-wrap gap-[29px]">
-          {members.map((m) => (
-            <li key={m.id}>
-              <MemberCard
-                member={m}
-                lang={lang}
-                onRemove={() => removeMember(m.id)}
-                removeLabel={t('teamSettings.removeMember')}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+        <p className="mb-2 text-lg font-semibold text-mocha">{t('teamSettings.member')}</p>
+        <motion.ul variants={staggerParent(0.06)} className="flex flex-wrap gap-7.25">
+          <AnimatePresence mode="popLayout">
+            {members.map((m) => (
+              <motion.li key={m.id} layout variants={fadeUp} exit={{ opacity: 0, scale: 0.9 }}>
+                <MemberCard
+                  member={m}
+                  lang={lang}
+                  onRemove={() => removeMember(m.id)}
+                  removeLabel={t('teamSettings.removeMember')}
+                />
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </motion.ul>
+      </motion.section>
 
       {/* 프로젝트 연결 관리 */}
-      <section className="rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
+      <motion.section variants={fadeUp} className="rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-4">
           <CardTitle>{t('teamSettings.connections')}</CardTitle>
         </div>
 
-        <ul className="flex flex-col gap-3">
+        <motion.ul variants={staggerParent(0.08)} className="flex flex-col gap-3">
           {connections.map((c) => {
             const Icon = SOURCE_ICON[c.source]
             const connected = c.url.trim() !== ''
             return (
-              <li key={c.source} className="flex items-center gap-2.5">
+              <motion.li key={c.source} variants={fadeUp} className="flex items-center gap-2.5">
                 <Icon className="h-6 w-6 shrink-0 text-dark-lava" />
-                <span className="w-27 shrink-0 text-[20px] font-bold text-charcoal">{c.label}</span>
+                <span className="w-20 shrink-0 text-xl font-bold text-charcoal">{c.label}</span>
 
                 <input
                   type="url"
@@ -194,7 +218,7 @@ function TeamSettings() {
                   readOnly
                   aria-label={`${c.label} URL`}
                   placeholder={t('teamSettings.connectPlaceholder')}
-                  className="h-8.5 flex-1 rounded-[7px] border border-taupe bg-milk px-4.5 text-[15px] font-semibold text-mocha placeholder-taupe focus:outline-none"
+                  className="h-8.5 flex-1 rounded-[7px] border-2 border-taupe bg-milk px-4.5 text-sm font-semibold text-mocha placeholder-taupe focus:outline-none"
                 />
 
                 <ConnectionBadge
@@ -203,11 +227,11 @@ function TeamSettings() {
                 >
                   {connected ? t('teamSettings.connected') : t('teamSettings.notConnected')}
                 </ConnectionBadge>
-              </li>
+              </motion.li>
             )
           })}
-        </ul>
-      </section>
+        </motion.ul>
+      </motion.section>
 
       {/* 팀원 추가 - 초대 코드 발급 */}
       <ActionModal
@@ -295,7 +319,7 @@ function TeamSettings() {
         ]}
         footnote={t('teamSettings.disconnectFootnote')}
       />
-    </div>
+    </motion.div>
   )
 }
 

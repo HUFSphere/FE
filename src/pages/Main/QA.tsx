@@ -1,12 +1,25 @@
 // 챗봇 Q&A 페이지
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { SearchIcon, WarningIcon } from '../../components/ui/icons/FeatureIcon'
 import { mockAnswer, mockPractices, mockScopes, mockSuggestions } from '../../mocks/QA'
 
+/* 후속 질문 카드 묶음 폭 */
+const SUGGESTION_WIDTH = 'max-w-full'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+}
+const staggerParent = (stagger = 0.12, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
 /* 질문 카드 */
 function CardTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-2.5 text-[24px] font-semibold text-dark-lava">{children}</h2>
+  return <h2 className="mb-2.5 text-xl font-semibold text-dark-lava">{children}</h2>
 }
 
 /* 질문 범위 */
@@ -24,7 +37,7 @@ function ScopeButton({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex h-7.5 shrink-0 items-center rounded-full border-2 px-3.5 text-[14px] font-semibold transition-colors ${
+      className={`flex h-7.5 shrink-0 items-center rounded-full border-2 px-3.5 text-sm font-semibold transition-colors ${
         selected
           ? 'border-charcoal bg-charcoal text-milk'
           : 'border-taupe bg-milk text-taupe hover:border-mocha hover:text-mocha'
@@ -54,16 +67,21 @@ function QA() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-[1477px]">
-      <h1 className="mb-4 text-[28px] font-extrabold tracking-tight text-dark-lava">
-        {t('qa.title')}
-      </h1>
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={staggerParent(0.15)}
+      className="mx-auto w-full max-w-369.25"
+    >
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-extrabold tracking-tight text-dark-lava">
+         {t('qa.title')}
+      </motion.h1>
 
-      <div className="grid grid-cols-[914fr_532fr] gap-[31px]">
+      <motion.div variants={staggerParent(0.1)} className="grid grid-cols-[914fr_532fr] gap-7.75">
         {/* 왼쪽 카드 두 가지 */}
         <div className="flex h-full flex-col gap-2">
-          {/* 질문 범위 + 입력 */}
-          <section className="rounded-[10px] bg-almond-milk px-5 pt-4.5 pb-6">
+          {/* 질문 범위  입력 */}
+          <motion.section variants={fadeUp} className="rounded-[10px] bg-almond-milk px-5 pt-4.5 pb-6">
             <div className="mb-2.5 flex items-center gap-3">
               <CardTitle>{t('qa.scope')}</CardTitle>
 
@@ -93,35 +111,35 @@ function QA() {
                 value={scopeQuery}
                 onChange={(e) => setScopeQuery(e.target.value)}
                 placeholder={t('qa.searchFeature')}
-                className="h-8.5 w-full rounded-[9px] border border-taupe bg-milk pr-4 pl-11 text-[14px] font-semibold text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
+                className="h-8.5 w-full rounded-[9px] border-2 border-taupe bg-milk pr-4 pl-11 text-sm font-semibold text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
               />
             </div>
 
             {/* 질문 입력 */}
-            <label htmlFor="qa-question" className="mb-2.5 block text-xl font-bold text-dark-lava">
+            <label htmlFor="qa-question" className="mb-2.5 block text-base font-bold text-dark-lava">
               {t('qa.askLabel')}
             </label>
             <textarea
               id="qa-question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="h-34 w-full resize-none rounded-[9px] border border-taupe bg-milk p-4 text-[14px] font-medium leading-relaxed text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
+              className="h-34 w-full resize-none rounded-[9px] border-2 border-taupe bg-milk p-4 text-sm font-medium leading-relaxed text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
             />
-          </section>
+          </motion.section>
 
-          <section className="flex flex-1 flex-col rounded-[10px] bg-oat px-5 pt-4.5 pb-5.5">
+          <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-oat px-5 pt-4.5 pb-5.5">
             <CardTitle>{t('qa.answer')}</CardTitle>
 
-            <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border border-taupe bg-milk p-5 text-[15px] font-medium leading-relaxed whitespace-pre-line text-dark-lava">
+            <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-base font-medium leading-relaxed whitespace-pre-line text-dark-lava">
               {mockAnswer.text[lang] || (
                 <span className="text-taupe">{t('qa.answerPlaceholder')}</span>
               )}
             </div>
 
             <p className="mb-2.5 text-base font-bold text-dark-lava">{t('qa.evidence')}</p>
-            <ul className="flex flex-wrap gap-3.5">
+            <motion.ul variants={staggerParent(0.06)} className="flex flex-wrap gap-3.5">
               {mockAnswer.evidence.map((e) => (
-                <li key={e.id}>
+                <motion.li key={e.id} variants={fadeUp}>
                   <a
                     href={e.url}
                     target="_blank"
@@ -130,35 +148,35 @@ function QA() {
                   >
                     {e.label[lang]}
                   </a>
-                </li>
+                </motion.li>
               ))}
-            </ul>
-          </section>
+            </motion.ul>
+          </motion.section>
         </div>
 
         {/* 오른쪽 카드들 */}
         <div className="flex h-full flex-col gap-3.5">
           {/* 팀 관행 분석 */}
-          <section className="rounded-[10px] bg-mocha px-6.5 pt-5 pb-5">
-            <h2 className="mb-3 text-[26px] font-bold text-milk">{t('qa.practices')}</h2>
+          <motion.section variants={fadeUp} className="rounded-[10px] bg-mocha px-6.5 pt-5 pb-5">
+            <h2 className="mb-3 text-xl font-bold text-milk">{t('qa.practices')}</h2>
 
-            <ul className="mb-3.5 flex flex-col gap-2.5">
+            <motion.ul variants={staggerParent(0.08)} className="mb-3.5 flex flex-col gap-2.5">
               {mockPractices.map((p) => (
-                <li key={p.id} className="rounded-[8px] bg-oat px-4.5 py-3.5">
-                  <p className="mb-1.5 text-[18px] font-semibold whitespace-pre-line text-charcoal">
+                <motion.li key={p.id} variants={fadeUp} className="rounded-lg bg-milk px-4.5 py-3.5">
+                  <p className="mb-1.5 text-sm font-semibold whitespace-pre-line text-charcoal">
                     {p.text[lang]}
                   </p>
                   <a
                     href={p.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[18px] font-semibold text-mocha underline underline-offset-3 hover:text-almond-milk"
+                    className="text-sm text-mocha underline underline-offset-3 hover:text-charcoal"
                   >
                     {t('qa.viewEvidence')}
                   </a>
-                </li>
+                </motion.li>
               ))}
-            </ul>
+            </motion.ul>
 
             {/* 주의 문구 */}
             <div className="flex items-start gap-2">
@@ -167,31 +185,34 @@ function QA() {
                 triangleClassName="text-milk"
                 markClassName="text-mocha"
               />
-              <p className="text-[16px] font-semibold leading-snug whitespace-pre-line text-milk">
+              <p className="text-sm font-semibold leading-snug whitespace-pre-line text-milk">
                 {t('qa.disclaimer')}
               </p>
             </div>
-          </section>
+          </motion.section>
 
-          <section className="flex flex-1 flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
-            <h2 className="mb-4 text-[26px] font-semibold text-dark-lava">{t('qa.suggestions')}</h2>
-            <ul className="flex flex-col gap-2.5">
+          <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
+            <h2 className="mb-7 text-xl font-semibold text-dark-lava">{t('qa.suggestions')}</h2>
+            <motion.ul
+              variants={staggerParent(0.06)}
+              className={`flex w-full ${SUGGESTION_WIDTH} flex-col gap-2.5`}
+            >
               {mockSuggestions.map((s) => (
-                <li key={s.id}>
+                <motion.li key={s.id} variants={fadeUp}>
                   <button
                     type="button"
                     onClick={() => setQuestion(s.label[lang])}
-                    className="h-13 w-full rounded-[8px] bg-milk px-4 text-[15px] font-semibold text-mocha hover:bg-oat"
+                    className="h-13 w-full rounded-lg bg-milk px-4 text-sm font-semibold text-mocha hover:bg-oat"
                   >
                     {s.label[lang]}
                   </button>
-                </li>
+                </motion.li>
               ))}
-            </ul>
-          </section>
+            </motion.ul>
+          </motion.section>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
