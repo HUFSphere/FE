@@ -7,12 +7,14 @@ import { mockUser } from '../../mocks/user'
 import BellIcon from '../ui/icons/BellIcon'
 import LogoutIcon from '../ui/icons/LogoutIcon'
 import ActionModal from '../ui/modal/ActionModal'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function Header() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const dateLocale = i18n.language === 'ko' ? ko : enUS
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   const handleConfirmLogout = () => {
     // 백엔드 API 연동되면 여기에 signOut() 호출 등 추가 필요할 듯?
@@ -22,7 +24,7 @@ function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-end gap-10 px-8 py-5">
+      <header className="fixed inset-x-0 top-0 left-80 z-40 flex h-22 items-center justify-end gap-10 bg-milk px-8">
         <span className="text-2xl font-semibold text-taupe">
           {t('header.lastSynced', {
             time: formatDistanceToNow(new Date(mockUser.lastSyncedAt), {
@@ -32,10 +34,42 @@ function Header() {
           })}
         </span>
         <div className="flex items-center gap-5">
-          <button aria-label={t('header.notification')}>
-            <BellIcon className="h-7 w-7 text-mocha" />
-          </button>
-          <button aria-label={t('header.logout')} onClick={() => setIsLogoutModalOpen(true)}>
+          <div className="relative">
+            <button
+              aria-label={t('header.notification')}
+              onClick={() => setIsNotificationOpen((prev) => !prev)}
+              className="flex items-center justify-center"
+            >
+              <BellIcon className="h-7 w-7 text-mocha" />
+            </button>
+
+            <AnimatePresence>
+              {isNotificationOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setIsNotificationOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full z-40 mt-3 w-105 rounded-[10px] border-[1.5px] border-taupe bg-milk p-6 shadow-lg"
+                   >
+                    <p className="mb-4 text-xl font-bold text-dark-lava">{t('header.notification')}</p>
+                    <p className="text-base text-taupe">
+                      {/* TODO: 실제 알림 API 연동 전까지의 플레이스홀더 */}
+                      {t('header.notificationEmpty')}
+                    </p>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button
+            aria-label={t('header.logout')}
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="flex items-center justify-center"
+          >
             <LogoutIcon className="h-9 w-9 text-mocha" />
           </button>
         </div>

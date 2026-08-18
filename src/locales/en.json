@@ -9,6 +9,7 @@
   "header": {
     "lastSynced": "Last synced: {{time}}",
     "notification": "Notification",
+    "notificationEmpty": "You don't have any new notifications yet.",
     "logout": "Log out",
     "logoutModal": {
       "title": "Log out",
