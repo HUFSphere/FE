@@ -1,4 +1,4 @@
-// 기능 목록 더미 데이터 — API 연동 시 이 파일을 fetch 훅으로 교체 필요
+// 기능 목록 더미 데이터 — API 연동 시 이 파일을 fetch 훅으로 교체합니다
 import type { Status } from '../components/ui/StatusBadge/Statusbadge'
 import type { SourceKind } from './featuredetail'
 
