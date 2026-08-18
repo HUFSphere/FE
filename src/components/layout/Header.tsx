@@ -24,7 +24,7 @@ function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-end gap-10 px-8 py-5">
+      <header className="fixed inset-x-0 top-0 left-80 z-40 flex h-22 items-center justify-end gap-10 bg-milk px-8">
         <span className="text-2xl font-semibold text-taupe">
           {t('header.lastSynced', {
             time: formatDistanceToNow(new Date(mockUser.lastSyncedAt), {
@@ -38,6 +38,7 @@ function Header() {
             <button
               aria-label={t('header.notification')}
               onClick={() => setIsNotificationOpen((prev) => !prev)}
+              className="flex items-center justify-center"
             >
               <BellIcon className="h-7 w-7 text-mocha" />
             </button>
@@ -64,7 +65,11 @@ function Header() {
             </AnimatePresence>
           </div>
 
-          <button aria-label={t('header.logout')} onClick={() => setIsLogoutModalOpen(true)}>
+          <button
+            aria-label={t('header.logout')}
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="flex items-center justify-center"
+          >
             <LogoutIcon className="h-9 w-9 text-mocha" />
           </button>
         </div>

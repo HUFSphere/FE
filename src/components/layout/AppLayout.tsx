@@ -6,9 +6,9 @@ function AppLayout() {
   return (
     <div className="flex h-screen bg-milk">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-y-auto">
+      <div className="flex flex-1 flex-col">
         <Header />
-        <main className="flex-1 p-8">
+        <main className="mt-22 h-[calc(100vh-5.5rem)] overflow-y-auto p-8">
           <Outlet />
         </main>
       </div>
