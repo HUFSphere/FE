@@ -1,5 +1,5 @@
 // 팀 설정 페이지
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SOURCE_ICON } from '../../components/ui/icons/FeatureIcon'
@@ -11,13 +11,20 @@ import {
   ReloadIcon,
 } from '../../components/ui/icons/ModalIcons'
 import {
-  generateInviteCode,
   mockConnectedUrl,
   mockConnections,
-  mockLeader,
-  mockMembers,
 } from '../../mocks/team'
-import type { Connection, Member } from '../../mocks/team'
+import type { Connection } from '../../mocks/team'
+import {
+  getMembers,
+  removeMember as apiRemoveMember,
+  generateInviteCode as apiGenerateInviteCode,
+} from '../../api/team'
+import type { WorkspaceMember } from '../../api/team'
+import { leaveWorkspace } from '../../api/workspace'
+import { getMyInfo } from '../../api/auth'
+import { getWorkspaceId } from '../../utils/workspaceStorage'
+import { useNavigate } from 'react-router-dom'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -36,14 +43,14 @@ function CardTitle({ children }: { children: React.ReactNode }) {
 /* 팀원 카드 */
 function MemberCard({
   member,
-  lang,
   onRemove,
   removeLabel,
+  disabled,
 }: {
-  member: Member
-  lang: 'ko' | 'en'
+  member: WorkspaceMember
   onRemove?: () => void
   removeLabel?: string
+  disabled?: boolean
 }) {
   return (
     <motion.div
@@ -57,9 +64,9 @@ function MemberCard({
       <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-milk text-base font-medium text-taupe">
         Aa
       </div>
-      <span className="truncate text-lg font-semibold text-charcoal">{member.name[lang]}</span>
+      <span className="truncate text-lg font-semibold text-charcoal">{member.name}</span>
 
-      {onRemove && (
+      {onRemove && !disabled && (
         <button
           type="button"
           onClick={onRemove}
@@ -103,11 +110,16 @@ function ConnectionBadge({
 }
 
 function TeamSettings() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language === 'en' ? 'en' : 'ko'
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const workspaceId = getWorkspaceId()
 
-  const [members, setMembers] = useState<Member[]>(mockMembers)
+  const [members, setMembers] = useState<WorkspaceMember[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [connections, setConnections] = useState<Connection[]>(mockConnections)
+  const [myUserId, setMyUserId] = useState<number | null>(null)
+  const [myRole, setMyRole] = useState<'leader' | 'member' | null>(null)
 
   /* 초대 코드 */
   const [inviteCode, setInviteCode] = useState<string | null>(null)
@@ -117,14 +129,64 @@ function TeamSettings() {
   const [connecting, setConnecting] = useState<Connection | null>(null)
   const [pending, setPending] = useState<Connection | null>(null)
 
-  const removeMember = (id: string) => setMembers((prev) => prev.filter((m) => m.id !== id))
+  /* 나가기/추방 확인 대상 (본인이면 나가기, 남이면 추방으로 분기) */
+  const [removeTarget, setRemoveTarget] = useState<WorkspaceMember | null>(null)
+  const [isRemoving, setIsRemoving] = useState(false)
+
+  useEffect(() => {
+    if (!workspaceId) {
+      setLoadError('워크스페이스 정보가 없습니다.')
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    Promise.all([getMembers(workspaceId), getMyInfo()])
+      .then(([memberList, me]) => {
+        setMembers(memberList)
+        setMyUserId(me.userId)
+        const meAsMember = memberList.find((m) => m.userId === me.userId)
+        setMyRole(meAsMember?.role ?? null)
+      })
+      .catch(() => setLoadError('멤버 목록을 불러오지 못했습니다.'))
+      .finally(() => setIsLoading(false))
+  }, [workspaceId])
+
+  const leader = members.find((m) => m.role === 'leader')
+  const regularMembers = members.filter((m) => m.role !== 'leader')
+
+  const confirmRemove = async () => {
+    if (!workspaceId || !removeTarget) return
+    setIsRemoving(true)
+    try {
+      if (removeTarget.userId === myUserId) {
+        /* 본인이면 leave API로 스스로 나감 */
+        await leaveWorkspace(workspaceId)
+        navigate('/sign-in')
+        return
+      }
+      /* 남이면 팀장 권한으로 추방 */
+      await apiRemoveMember(workspaceId, removeTarget.userId)
+      setMembers((prev) => prev.filter((m) => m.userId !== removeTarget.userId))
+      setRemoveTarget(null)
+    } catch {
+      setLoadError('처리하지 못했습니다.')
+    } finally {
+      setIsRemoving(false)
+    }
+  }
 
   const updateUrl = (source: string, url: string) =>
     setConnections((prev) => prev.map((c) => (c.source === source ? { ...c, url } : c)))
 
-  const openInvite = () => {
-    setInviteCode(generateInviteCode())
-    setCopied(false)
+  const openInvite = async () => {
+    if (!workspaceId) return
+    try {
+      const res = await apiGenerateInviteCode(workspaceId)
+      setInviteCode(res.inviteCode)
+      setCopied(false)
+    } catch {
+      setLoadError('초대 코드를 발급하지 못했습니다.')
+    }
   }
 
   const copyCode = async () => {
@@ -160,6 +222,8 @@ function TeamSettings() {
         {t('teamSettings.title')}
       </motion.h1>
 
+      {loadError && <p className="mb-4 text-sm font-semibold text-red-600">{loadError}</p>}
+
       {/* 팀 설정 */}
       <motion.section variants={fadeUp} className="mb-4.25 rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-2.5 flex items-center">
@@ -174,26 +238,37 @@ function TeamSettings() {
         </div>
 
         {/* 팀장 */}
-        <p className="mb-2 text-lg font-semibold text-mocha">{t('teamSettings.leader')}</p>
-        <motion.div variants={fadeUp} className="mb-3.5">
-          <MemberCard member={mockLeader} lang={lang} />
-        </motion.div>
+        {leader && (
+          <>
+            <p className="mb-2 text-lg font-semibold text-mocha">{t('teamSettings.leader')}</p>
+            <motion.div variants={fadeUp} className="mb-3.5">
+              <MemberCard member={leader} />
+            </motion.div>
+          </>
+        )}
 
         {/* 팀원 */}
         <p className="mb-2 text-lg font-semibold text-mocha">{t('teamSettings.member')}</p>
         <motion.ul variants={staggerParent(0.06)} className="flex flex-wrap gap-7.25">
           <AnimatePresence mode="popLayout">
-            {members.map((m) => (
-              <motion.li key={m.id} layout variants={fadeUp} exit={{ opacity: 0, scale: 0.9 }}>
-                <MemberCard
-                  member={m}
-                  lang={lang}
-                  onRemove={() => removeMember(m.id)}
-                  removeLabel={t('teamSettings.removeMember')}
-                />
-              </motion.li>
-            ))}
+            {regularMembers.map((m) => {
+              const isMe = m.userId === myUserId
+              const canAct = isMe || myRole === 'leader'
+              return (
+                <motion.li key={m.membershipId} layout variants={fadeUp} exit={{ opacity: 0, scale: 0.9 }}>
+                  <MemberCard
+                    member={m}
+                    onRemove={canAct ? () => setRemoveTarget(m) : undefined}
+                    removeLabel={isMe ? t('teamSettings.leaveTeam') : t('teamSettings.removeMember')}
+                    disabled={!canAct}
+                  />
+                </motion.li>
+              )
+            })}
           </AnimatePresence>
+          {!isLoading && regularMembers.length === 0 && (
+            <li className="py-4 text-sm font-medium text-taupe">아직 팀원이 없습니다.</li>
+          )}
         </motion.ul>
       </motion.section>
 
@@ -318,6 +393,36 @@ function TeamSettings() {
           },
         ]}
         footnote={t('teamSettings.disconnectFootnote')}
+      />
+
+      {/* 나가기 / 추방 확인 */}
+      <ActionModal
+        isOpen={removeTarget !== null}
+        onClose={() => setRemoveTarget(null)}
+        title={removeTarget?.userId === myUserId ? t('teamSettings.leaveTitle') : t('teamSettings.removeTitle')}
+        icon={<ErrorIcon className="h-12 w-12 text-mocha" />}
+        message={{
+          title:
+            removeTarget?.userId === myUserId
+              ? t('teamSettings.leaveConfirm')
+              : t('teamSettings.removeConfirm', { name: removeTarget?.name ?? '' }),
+          description:
+            removeTarget?.userId === myUserId
+              ? t('teamSettings.leaveDesc')
+              : t('teamSettings.removeDesc'),
+        }}
+        buttons={[
+          {
+            label: isRemoving ? '...' : t('teamSettings.confirmYes'),
+            variant: 'primary',
+            onClick: confirmRemove,
+          },
+          {
+            label: t('teamSettings.cancel'),
+            variant: 'secondary',
+            onClick: () => setRemoveTarget(null),
+          },
+        ]}
       />
     </motion.div>
   )

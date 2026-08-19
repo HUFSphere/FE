@@ -1,23 +1,34 @@
 // 기능 목록 페이지
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatusBadge from '../../components/ui/StatusBadge/Statusbadge'
 import type { Status } from '../../components/ui/StatusBadge/Statusbadge'
 import { SearchIcon, SOURCE_ICON } from '../../components/ui/icons/FeatureIcon'
-import { mockFeatureList } from '../../mocks/features'
-import type { SourceKind } from '../../mocks/featuredetail'
 import Select from '../../components/ui/Select/Select'
 import type { SelectOption } from '../../components/ui/Select/Select'
+import { getWorkItems } from '../../api/workItems'
+import type { WorkItem } from '../../api/workItems'
+import { getWorkspaceId } from '../../utils/workspaceStorage'
+import { getUiLang } from '../../utils/lang'
+import { toUiStatus } from '../../utils/statusMap'
 
-const STATUS_OPTIONS: Status[] = ['todo', 'progress', 'review', 'done', 'blocked']
+const STATUS_FILTER_OPTIONS: { apiValue: string; uiKey: Status }[] = [
+  { apiValue: 'todo', uiKey: 'todo' },
+  { apiValue: 'in_progress', uiKey: 'progress' },
+  { apiValue: 'review', uiKey: 'review' },
+  { apiValue: 'done', uiKey: 'done' },
+]
 
-const SOURCE_OPTIONS: { value: SourceKind; label: string }[] = [
+
+const SOURCE_OPTIONS: { value: string; label: string }[] = [
   { value: 'github', label: 'Github' },
   { value: 'figma', label: 'Figma' },
   { value: 'notion', label: 'Notion' },
 ]
+
+const PAGE_SIZE = 20
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -59,23 +70,97 @@ function FilterSelect({
 function FeatureList() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const lang = i18n.language === 'en' ? 'en' : 'ko'
+  const lang = getUiLang(i18n.language)
+  const workspaceId = getWorkspaceId()
+
 
   const [status, setStatus] = useState('')
   const [source, setSource] = useState('')
   const [query, setQuery] = useState('')
 
-  const items = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return mockFeatureList.filter((item) => {
-      if (status && item.status !== status) return false
-      if (source && item.source !== source) return false
-      if (!q) return true
-      return (
-        item.title[lang].toLowerCase().includes(q) || item.meta[lang].toLowerCase().includes(q)
-      )
+  const [items, setItems] = useState<WorkItem[]>([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const loadingRef = useRef(false)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  /* 필터(상태/소스/검색어)가 바뀌면 목록을 처음부터 다시 불러옴.
+     검색어는 타이핑마다 바로 요청하지 않도록 300ms 지연 */
+  useEffect(() => {
+    if (!workspaceId) {
+      setLoadError('워크스페이스 정보가 없습니다.')
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setLoadError(null)
+      loadingRef.current = true
+      setIsLoading(true)
+      getWorkItems(workspaceId, {
+        query: query.trim() || undefined,
+        sourceType: source || undefined,
+        status: status || undefined,
+        page: 1,
+        size: PAGE_SIZE,
+        lang,
+      })
+        .then((res) => {
+          setItems(res.items)
+          setPage(1)
+          setTotalPages(res.totalPages)
+        })
+        .catch(() => setLoadError('기능 목록을 불러오지 못했습니다.'))
+        .finally(() => {
+          setIsLoading(false)
+          loadingRef.current = false
+        })
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [workspaceId, status, source, query, lang])
+
+  /* 다음 페이지를 이어서 불러와 기존 목록 뒤에 붙임 */
+  const loadMore = useCallback(() => {
+    if (!workspaceId || loadingRef.current || page >= totalPages) return
+    loadingRef.current = true
+    setIsLoading(true)
+    const nextPage = page + 1
+    getWorkItems(workspaceId, {
+      query: query.trim() || undefined,
+      sourceType: source || undefined,
+      status: status || undefined,
+      page: nextPage,
+      size: PAGE_SIZE,
+      lang,
     })
-  }, [status, source, query, lang])
+      .then((res) => {
+        setItems((prev) => [...prev, ...res.items])
+        setPage(nextPage)
+      })
+      .catch(() => setLoadError('기능 목록을 불러오지 못했습니다.'))
+      .finally(() => {
+        setIsLoading(false)
+        loadingRef.current = false
+      })
+  }, [workspaceId, page, totalPages, query, source, status, lang])
+
+  /* 목록 맨 아래 감지용 요소가 화면에 보이면 다음 페이지 로드 */
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore()
+      },
+      { rootMargin: '200px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [loadMore])
 
   return (
     <motion.div
@@ -94,14 +179,14 @@ function FeatureList() {
           label={t('featureList.status')}
           value={status}
           onChange={setStatus}
-          options={STATUS_OPTIONS.map((s) => ({ value: s, label: t(`status.${s}`) }))}
+          options={STATUS_FILTER_OPTIONS.map((s) => ({ value: s.apiValue, label: t(`status.${s.uiKey}`) }))}
         />
 
         <FilterSelect
           label={t('featureList.platform')}
           value={source}
           onChange={setSource}
-          options={SOURCE_OPTIONS.map((s) => ({ value: s.value, label: s.label }))}
+          options={SOURCE_OPTIONS}
         />
 
         <motion.div variants={fadeUp} className="relative flex-1">
@@ -116,7 +201,9 @@ function FeatureList() {
         </motion.div>
       </motion.div>
 
-      {/* 기능 목록  상세보기 버튼 */}
+      {loadError && <p className="mb-4 text-sm font-semibold text-red-600">{loadError}</p>}
+
+      {/* 기능 목록 + 상세보기 버튼 */}
       <motion.ul
         key={`${status}-${source}-${query}`}
         initial="hidden"
@@ -126,7 +213,7 @@ function FeatureList() {
       >
         <AnimatePresence mode="popLayout">
           {items.map((item) => {
-            const Icon = SOURCE_ICON[item.source]
+            const Icon = SOURCE_ICON[item.sourceType.toLowerCase() as keyof typeof SOURCE_ICON]
             return (
               <motion.li
                 key={item.id}
@@ -135,14 +222,14 @@ function FeatureList() {
                 exit={{ opacity: 0, y: -10 }}
                 className="flex h-25 items-center gap-4.5 rounded-[10px] bg-oat pr-4.75 pl-4.5"
               >
-                <Icon className="h-6 w-6 shrink-0 text-charcoal" />
+                {Icon && <Icon className="h-6 w-6 shrink-0 text-charcoal" />}
 
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2.5">
-                    <p className="truncate text-xl font-bold text-charcoal">{item.title[lang]}</p>
-                    <StatusBadge status={item.status} />
+                    <p className="truncate text-xl font-bold text-charcoal">{item.title}</p>
+                    <StatusBadge status={toUiStatus(item.status)} />
                   </div>
-                  <p className="truncate text-sm font-bold text-charcoal">{item.meta[lang]}</p>
+                  <p className="truncate text-sm font-bold text-charcoal">{item.sourceType}</p>
                 </div>
 
                 <button
@@ -156,7 +243,7 @@ function FeatureList() {
             )
           })}
 
-          {items.length === 0 && (
+          {items.length === 0 && !isLoading && (
             <motion.li
               key="empty"
               variants={fadeUp}
@@ -168,6 +255,12 @@ function FeatureList() {
           )}
         </AnimatePresence>
       </motion.ul>
+
+      {/* 무한스크롤 감지 지점 */}
+      <div ref={sentinelRef} className="h-1" />
+      {isLoading && (
+        <p className="py-4 text-center text-sm font-medium text-mocha">불러오는 중...</p>
+      )}
     </motion.div>
   )
 }

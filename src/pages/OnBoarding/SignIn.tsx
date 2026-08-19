@@ -275,8 +275,10 @@ function SignIn() {
       const workspaces = await getMyWorkspaces()
       if (workspaces.length > 0) {
         setWorkspaceId(workspaces[0].workspaceId)
+        navigate('/map')
+      } else {
+        navigate('/onboarding/role')
       }
-      navigate('/map')
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '로그인에 실패했습니다.')
     } finally {
