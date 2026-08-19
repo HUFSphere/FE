@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { loginWithOAuth } from '../../api/auth'
 import { ApiError } from '../../api/client'
+import { getMyWorkspaces } from '../../api/workspace'
+import { setWorkspaceId } from '../../utils/workspaceStorage'
 
 function OAuthCallback() {
   const [searchParams] = useSearchParams()
@@ -22,7 +24,15 @@ function OAuthCallback() {
     }
 
     loginWithOAuth({ oauthProvider: 'google', oauthCode: code })
-      .then(() => navigate('/map'))
+      .then(async () => {
+        const workspaces = await getMyWorkspaces()
+        if (workspaces.length > 0) {
+          setWorkspaceId(workspaces[0].workspaceId)
+          navigate('/map')
+        } else {
+          navigate('/onboarding/language')
+        }
+      })
       .catch((e) => {
         setError(e instanceof ApiError ? e.message : '구글 로그인에 실패했습니다.')
       })
