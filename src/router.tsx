@@ -5,6 +5,7 @@ import AppLayout from './components/layout/AppLayout'
 import Landing from './pages/OnBoarding/Landing'
 import SignIn from './pages/OnBoarding/SignIn'
 import SignUp from './pages/OnBoarding/SignUp'
+import OAuthCallback from './pages/auth/OAuthCallback.tsx'
 import Language from './pages/OnBoarding/Language'
 import Role from './pages/OnBoarding/Role'
 import InviteCode from './pages/OnBoarding/InviteCode'
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
   { path: '/sign-in', element: <SignIn /> },
   { path: '/sign-up', element: <SignUp /> },
+  { path: '/oauth/callback', element: <OAuthCallback /> },
   { path: '/onboarding/language', element: <Language /> },
   { path: '/onboarding/role', element: <Role /> },
   { path: '/onboarding/invite-code', element: <InviteCode /> },

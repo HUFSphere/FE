@@ -5,6 +5,8 @@ import type { SubmitEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { login, startOAuth } from '../../api/auth'
+import { ApiError } from '../../api/client'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -108,7 +110,7 @@ function SignInIllustration() {
         />
       </g>
 
-      {/* 줄기 + 곁가지 */}
+      {/* 줄기  곁가지 */}
       <path d="M263 414.96V163.02" stroke="url(#signin-illust-stem)" strokeWidth="2.4" strokeLinecap="round" />
       <path d="M263 318.63C263 279.11 220.92 279.11 194.62 259.35" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
       <path d="M263 279.11C263 242.06 310.34 244.53 336.64 224.77" stroke="#A8957F" strokeWidth="1.8" strokeLinecap="round" />
@@ -220,7 +222,7 @@ function SignInDecor() {
   )
 }
 
-/* 라벨 + 인풋 */
+/* 라벨  인풋 */
 function Field({
   id,
   label,
@@ -259,16 +261,26 @@ function SignIn() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // TODO: 로그인 API 연동 전까지는 다음 온보딩 단계로 넘깁니다.
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-    navigate('/onboarding/language')
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      await login(email, password)
+      navigate('/map')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '로그인에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <div className="flex min-h-screen bg-milk">
-      {/* 좌측: 로고 + 로그인 폼 */}
+      {/* 좌측: 로고  로그인 폼 */}
       <div className="relative grid flex-1 place-items-center overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <SignInDecor />
@@ -326,13 +338,16 @@ function SignIn() {
               />
             </motion.div>
 
+            {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+
             {/* 로그인 버튼 */}
             <motion.button
               variants={fadeUp}
               type="submit"
-              className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-milk"
+              disabled={isSubmitting}
+              className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-milk disabled:opacity-60"
             >
-              {t('signIn.submit')}
+              {isSubmitting ? '...' : t('signIn.submit')}
             </motion.button>
           </motion.form>
 
@@ -340,8 +355,7 @@ function SignIn() {
           <motion.button
             variants={fadeUp}
             type="button"
-            // TODO: 구글 OAuth 연동
-            onClick={() => navigate('/onboarding/language')}
+            onClick={() => startOAuth('google')}
             className="flex h-15.5 w-full items-center justify-center gap-2.5 rounded-[10px] border border-mocha bg-white text-[20px] font-semibold text-charcoal"
           >
             <GoogleIcon />
