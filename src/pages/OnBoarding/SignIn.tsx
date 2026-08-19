@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { login, startOAuth } from '../../api/auth'
 import { ApiError } from '../../api/client'
+import { getMyWorkspaces } from '../../api/workspace'
+import { setWorkspaceId } from '../../utils/workspaceStorage'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -270,6 +272,10 @@ function SignIn() {
     setIsSubmitting(true)
     try {
       await login(email, password)
+      const workspaces = await getMyWorkspaces()
+      if (workspaces.length > 0) {
+        setWorkspaceId(workspaces[0].workspaceId)
+      }
       navigate('/map')
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '로그인에 실패했습니다.')
