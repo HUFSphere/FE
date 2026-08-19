@@ -78,7 +78,7 @@ function MapScrollbars() {
       {/* 가로 */}
       {hRatio < 1 && (
         <div
-          className="absolute bottom-2 left-3 right-3 h-2 cursor-pointer"
+          className="absolute bottom-2 left-3 right-3 z-20 h-2 cursor-pointer"
           onPointerDown={jumpTo('x')}
         >
           <div
@@ -103,7 +103,7 @@ function MapScrollbars() {
       {/* 세로 */}
       {vRatio < 1 && (
         <div
-          className="absolute top-3 bottom-3 right-2 w-2 cursor-pointer"
+          className="absolute top-3 bottom-3 right-2 w-2 z-20 cursor-pointer"
           onPointerDown={jumpTo('y')}
         >
           <div

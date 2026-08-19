@@ -1,6 +1,6 @@
 // 프로젝트 현황 페이지
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -9,13 +9,15 @@ import GithubIcon from '../../components/ui/icons/GithubIcon'
 import NotionIcon from '../../components/ui/icons/NotionIcon'
 import ChatBubbleIcon from '../../components/ui/icons/ChatBubbleIcon'
 import { getUiLang } from '../../utils/lang'
+import { toUiStatus } from '../../utils/statusMap'
+import { getWorkspaceId } from '../../utils/workspaceStorage'
 import {
-  mockFeatures,
-  mockSources,
-  mockRecentActivity,
-  mockAiQuestions,
-  type SourceKey,
-} from '../../mocks/projectStatus'
+  getFeatureDashboard,
+  getSourceDashboard,
+  getRecentActivities,
+  getSuggestedQuestions,
+} from '../../api/dashboard'
+import type { FeatureProgress, SourceCard, RecentActivity } from '../../api/dashboard'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -26,29 +28,17 @@ const staggerParent = (stagger = 0.1, delay = 0) => ({
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 })
 
-/* 언어 선택 헬퍼 */
-function useLang(): 'ko' | 'en' {
-  const { i18n } = useTranslation()
-  return getUiLang(i18n.language)
-}
-
 /* 기능별 막대 색상 */
-const FEATURE_COLORS: Record<string, string> = {
-  A: 'bg-taupe',
-  B: 'bg-mocha',
-  C: 'bg-charcoal',
-}
+const FEATURE_COLORS = ['bg-taupe', 'bg-mocha', 'bg-charcoal']
 
 const AXIS_TICKS = [0, 20, 40, 60, 80, 100]
 
 /* 소스별 아이콘 컴포넌트 */
-const SOURCE_ICONS: Record<SourceKey, typeof FigmaIcon> = {
+const SOURCE_ICONS: Record<string, typeof FigmaIcon> = {
   figma: FigmaIcon,
   github: GithubIcon,
   notion: NotionIcon,
 }
-
-const STATUS_OPTION_KEYS = ['notStarted', 'inProgress', 'done'] as const
 
 /* 상단 브레드크럼 */
 function Breadcrumb() {
@@ -69,9 +59,7 @@ function Breadcrumb() {
 }
 
 /* 막대그래프 카드 */
-function BarChartCard() {
-  const lang = useLang()
-
+function BarChartCard({ features }: { features: FeatureProgress[] }) {
   return (
     <motion.div variants={fadeUp} className="py-6">
       {/* 눈금 */}
@@ -95,34 +83,37 @@ function BarChartCard() {
           animate="show"
           className="relative flex flex-col gap-8 py-8"
         >
-          {mockFeatures.map((f) => (
-            <motion.div key={f.id} variants={fadeUp} className="relative h-12">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${f.value}%` }}
-                transition={{ duration: 0.9, delay: 0.4, ease: 'easeOut' }}
-                className={`h-full rounded-r-full ${FEATURE_COLORS[f.id]}`}
-              />
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 1.1 }}
-                style={{ left: `${f.value}%` }}
-                className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-4 text-xl font-semibold text-dark-lava"
-              >
-                {f.value}%
-              </motion.span>
-            </motion.div>
-          ))}
+          {features.map((f, i) => {
+            const percent = Math.round(f.progress * 100)
+            return (
+              <motion.div key={f.featureId} variants={fadeUp} className="relative h-12">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percent}%` }}
+                  transition={{ duration: 0.9, delay: 0.4, ease: 'easeOut' }}
+                  className={`h-full rounded-r-full ${FEATURE_COLORS[i % FEATURE_COLORS.length]}`}
+                />
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 1.1 }}
+                  style={{ left: `${percent}%` }}
+                  className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-4 text-xl font-semibold text-dark-lava"
+                >
+                  {percent}%
+                </motion.span>
+              </motion.div>
+            )
+          })}
         </motion.div>
       </div>
 
       {/* 범례 */}
       <div className="mt-6 flex justify-center gap-6">
-        {mockFeatures.map((f) => (
-          <div key={f.id} className="flex items-center gap-2 text-sm font-medium text-dark-lava">
-            <span className={`h-3 w-3 rounded-sm ${FEATURE_COLORS[f.id]}`} />
-            {f.label[lang]}
+        {features.map((f, i) => (
+          <div key={f.featureId} className="flex items-center gap-2 text-sm font-medium text-dark-lava">
+            <span className={`h-3 w-3 rounded-sm ${FEATURE_COLORS[i % FEATURE_COLORS.length]}`} />
+            {f.name}
           </div>
         ))}
       </div>
@@ -131,20 +122,28 @@ function BarChartCard() {
 }
 
 /* 소스 선택 탭 (Figma / Github / Notion) */
-function SourceTabs({ active, onChange }: { active: SourceKey; onChange: (key: SourceKey) => void }) {
+function SourceTabs({
+  sources,
+  active,
+  onChange,
+}: {
+  sources: SourceCard[]
+  active: string
+  onChange: (key: string) => void
+}) {
   return (
     <motion.div variants={fadeUp} className="flex gap-3">
-      {(Object.keys(mockSources) as SourceKey[]).map((key) => (
+      {sources.map((s) => (
         <button
-          key={key}
-          onClick={() => onChange(key)}
-          className={`rounded-full border px-6 py-2 text-center text-base font-bold transition-colors ${
-            active === key
+          key={s.sourceId}
+          onClick={() => onChange(s.sourceType.toLowerCase())}
+          className={`rounded-full border px-6 py-2 text-center text-base font-bold capitalize transition-colors ${
+            active === s.sourceType.toLowerCase()
               ? 'border-mocha bg-taupe text-milk'
               : 'border-mocha bg-milk text-dark-lava hover:bg-oat/60'
           }`}
         >
-          {mockSources[key].label}
+          {s.sourceType.toLowerCase()}
         </button>
       ))}
     </motion.div>
@@ -152,23 +151,26 @@ function SourceTabs({ active, onChange }: { active: SourceKey; onChange: (key: S
 }
 
 /* 최근 활동 카드 */
-function RecentActivityCard() {
+function RecentActivityCard({ activities }: { activities: RecentActivity[] }) {
   const { t } = useTranslation()
-  const lang = useLang()
 
   return (
     <motion.div variants={fadeUp} className="rounded-[10px] bg-almond-milk p-6">
       <h2 className="mb-5 text-2xl font-bold text-dark-lava">{t('projectStatus.recentActivity')}</h2>
       <motion.ul variants={staggerParent(0.08)} initial="hidden" animate="show" className="flex flex-col gap-4">
-        {mockRecentActivity.map((item) => {
-          const Icon = SOURCE_ICONS[item.source]
+        {activities.map((item) => {
+          const Icon = SOURCE_ICONS[item.sourceType.toLowerCase()]
           return (
-            <motion.li key={item.text.ko} variants={fadeUp} className="flex items-center justify-between">
-              <span className="flex items-center gap-3 text-lg font-bold text-dark-lava">
-                <Icon className="h-5 w-5 text-dark-lava" />
-                {item.text[lang]}
-              </span>
-              <span className="text-base text-taupe">— {item.time[lang]}</span>
+            <motion.li key={item.workItemId} variants={fadeUp} className="flex items-center justify-between">
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-lg font-bold text-dark-lava hover:underline"
+              >
+                {Icon && <Icon className="h-5 w-5 text-dark-lava" />}
+                {item.title}
+              </a>
             </motion.li>
           )
         })}
@@ -178,75 +180,73 @@ function RecentActivityCard() {
 }
 
 /* 우측: 소스 상세 패널 */
-function SourceDetailPanel({ source }: { source: SourceKey }) {
+function SourceDetailPanel({ source }: { source: SourceCard }) {
   const { t } = useTranslation()
-  const lang = useLang()
-  const data = mockSources[source]
+  const percent = Math.round(source.progress * 100)
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={source}
+        key={source.sourceId}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -12 }}
         transition={{ duration: 0.25 }}
         className="rounded-[10px] bg-oat p-6"
       >
-        <h2 className="mb-1 text-xl font-bold text-dark-lava">{data.label}</h2>
-        <p className="mb-4 text-sm text-taupe">{data.kicker[lang]}</p>
-
-        {/* 상태 배지 */}
-        <div className="mb-4 flex gap-2">
-          {STATUS_OPTION_KEYS.map((key) => (
-            <span
-              key={key}
-              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold ${
-                key === data.status
-                  ? 'border-mocha bg-taupe text-milk'
-                  : 'border-taupe bg-milk text-taupe'
-              }`}
-            >
-              {t(`projectStatus.statusOptions.${key}`)}
-            </span>
-          ))}
-        </div>
+        <h2 className="mb-1 text-xl font-bold capitalize text-dark-lava">
+          {source.sourceType.toLowerCase()}
+        </h2>
+        <p className="mb-4 text-sm text-taupe">{source.sourceRef}</p>
 
         {/* 진행도 */}
         <div className="mb-5">
           <div className="mb-1.5 flex items-center justify-between text-sm font-medium text-dark-lava">
             <span>{t('projectStatus.overallProgress')}</span>
-            <span>{data.progress}%</span>
+            <span>{percent}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-milk">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${data.progress}%` }}
+              animate={{ width: `${percent}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className="h-full rounded-full bg-mocha"
             />
           </div>
+          <p className="mt-1 text-xs text-taupe">
+            {source.doneCount} / {source.totalCount}
+          </p>
         </div>
 
         {/* 최근 이슈 */}
         <p className="mb-2 text-sm font-semibold text-dark-lava">{t('projectStatus.recentIssues')}</p>
         <motion.div variants={staggerParent(0.1)} initial="hidden" animate="show" className="mb-3 flex flex-col gap-2">
-          {data.issues.map((issue) => (
-            <motion.div key={issue.title.ko} variants={fadeUp} className="rounded-lg border border-taupe/50 bg-milk p-3.5">
-              <p className="mb-1 text-sm font-bold text-dark-lava">{issue.title[lang]}</p>
-              <p className="whitespace-pre-line text-xs text-taupe">{issue.description[lang]}</p>
-            </motion.div>
+          {source.recentIssues.map((issue) => (
+            <motion.a
+              key={issue.workItemId}
+              href={issue.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variants={fadeUp}
+              className="rounded-lg border border-taupe/50 bg-milk p-3.5 hover:border-mocha"
+            >
+              <p className="mb-1 text-sm font-bold text-dark-lava">{issue.title}</p>
+              <span
+                className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  toUiStatus(issue.status) === 'done'
+                    ? 'bg-mocha text-milk'
+                    : 'bg-taupe/30 text-mocha'
+                }`}
+              >
+                {issue.status}
+              </span>
+            </motion.a>
           ))}
         </motion.div>
 
-        <p className="mb-3 text-xs text-taupe">{t('projectStatus.connectionBasis')}</p>
-
         <div className="flex gap-2">
           <button className="flex-1 rounded-[10px] border border-mocha bg-taupe py-2.5 text-sm font-bold text-milk">
-            {t('projectStatus.askAbout', { source: data.label })}
-          </button>
-          <button className="flex-1 rounded-[10px] border border-taupe bg-milk py-2.5 text-sm font-bold text-dark-lava">
-            {t('projectStatus.viewIssueList')}
+            {t('projectStatus.askAbout', { source: source.sourceType })}
           </button>
         </div>
       </motion.div>
@@ -255,9 +255,8 @@ function SourceDetailPanel({ source }: { source: SourceKey }) {
 }
 
 /* 우측: AI 추천 질문 패널 */
-function AIQuestionsPanel() {
+function AIQuestionsPanel({ questions }: { questions: string[] }) {
   const { t } = useTranslation()
-  const lang = useLang()
 
   return (
     <motion.div variants={fadeUp} className="rounded-[10px] bg-dark-lava p-6">
@@ -266,13 +265,13 @@ function AIQuestionsPanel() {
         {t('projectStatus.aiRecommendedQuestions')}
       </h2>
       <motion.div variants={staggerParent(0.1, 0.2)} initial="hidden" animate="show" className="flex flex-col gap-2.5">
-        {mockAiQuestions.map((q) => (
+        {questions.map((q) => (
           <motion.button
-            key={q.ko}
+            key={q}
             variants={fadeUp}
             className="rounded-[10px] bg-taupe px-4 py-3 text-left text-sm font-medium text-milk transition-colors hover:bg-taupe/80"
           >
-            {q[lang]}
+            {q}
           </motion.button>
         ))}
       </motion.div>
@@ -281,7 +280,62 @@ function AIQuestionsPanel() {
 }
 
 function ProjectStatus() {
-  const [activeSource, setActiveSource] = useState<SourceKey>('figma')
+  const { i18n } = useTranslation()
+  const lang = getUiLang(i18n.language)
+  const workspaceId = getWorkspaceId()
+
+  const [features, setFeatures] = useState<FeatureProgress[]>([])
+  const [sources, setSources] = useState<SourceCard[]>([])
+  const [activities, setActivities] = useState<RecentActivity[]>([])
+  const [questions, setQuestions] = useState<string[]>([])
+  const [activeSourceType, setActiveSourceType] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!workspaceId) {
+      setLoadError('워크스페이스 정보가 없습니다.')
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setLoadError(null)
+
+    Promise.all([
+      getFeatureDashboard(workspaceId),
+      getSourceDashboard(workspaceId),
+      getRecentActivities(workspaceId),
+      getSuggestedQuestions(workspaceId, lang),
+    ])
+      .then(([f, s, a, q]) => {
+        setFeatures(f)
+        setSources(s)
+        setActivities(a)
+        setQuestions(q)
+        if (s.length > 0) setActiveSourceType(s[0].sourceType.toLowerCase())
+      })
+      .catch(() => setLoadError('현황판을 불러오지 못했습니다.'))
+      .finally(() => setIsLoading(false))
+  }, [workspaceId, lang])
+
+  const activeSource = sources.find((s) => s.sourceType.toLowerCase() === activeSourceType)
+
+  if (isLoading) {
+    return (
+      <div className="grid min-h-150 place-items-center">
+        <p className="text-lg font-medium text-mocha">불러오는 중...</p>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="grid min-h-150 place-items-center">
+        <p className="text-lg font-medium text-mocha">{loadError}</p>
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -293,15 +347,17 @@ function ProjectStatus() {
       {/* 좌측 메인 */}
       <div className="flex flex-col gap-6">
         <Breadcrumb />
-        <BarChartCard />
-        <SourceTabs active={activeSource} onChange={setActiveSource} />
-        <RecentActivityCard />
+        {features.length > 0 && <BarChartCard features={features} />}
+        {sources.length > 0 && (
+          <SourceTabs sources={sources} active={activeSourceType} onChange={setActiveSourceType} />
+        )}
+        <RecentActivityCard activities={activities} />
       </div>
 
       {/* 우측 사이드 */}
       <div className="flex flex-col gap-6">
-        <SourceDetailPanel source={activeSource} />
-        <AIQuestionsPanel />
+        {activeSource && <SourceDetailPanel source={activeSource} />}
+        <AIQuestionsPanel questions={questions} />
       </div>
     </motion.div>
   )
