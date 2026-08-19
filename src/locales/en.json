@@ -186,7 +186,8 @@
     "empty": "No features match these filters"
   },
   "featureDetail": {
-    "breadcrumb": "Feature list > Feature detail",
+    "breadcrumbList": "Feature list",
+    "breadcrumbDetail": "Feature detail",
     "ask": "Ask about this feature",
     "linked": "Linked items",
     "evidence": "Why they are linked",
@@ -253,6 +254,8 @@
     "toneDesc": "Edit the text below, or write your own instructions.",
     "save": "Save",
     "saved": "Saved",
-    "presets": "Presets"
+    "presets": "Presets",
+    "nativeLanguage": "Native Language",
+    "nativeLanguageDesc": "The language the AI uses when answering."
   }
 }

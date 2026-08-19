@@ -1,9 +1,15 @@
 // 챗봇 Q&A 페이지
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { SearchIcon, WarningIcon } from '../../components/ui/icons/FeatureIcon'
-import { mockAnswer, mockPractices, mockScopes, mockSuggestions } from '../../mocks/QA'
+import { getWorkItems } from '../../api/workItems'
+import type { WorkItem } from '../../api/workItems'
+import { askQuestion } from '../../api/qna'
+import type { QnaResponse } from '../../api/qna'
+import { getMyInfo } from '../../api/auth'
+import type { NativeLang } from '../../api/auth'
+import { getWorkspaceId } from '../../utils/workspaceStorage'
 
 /* 후속 질문 카드 묶음 폭 */
 const SUGGESTION_WIDTH = 'max-w-full'
@@ -49,22 +55,97 @@ function ScopeButton({
 }
 
 function QA() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language === 'en' ? 'en' : 'ko'
+  const { t } = useTranslation()
+  const workspaceId = getWorkspaceId()
 
   /* 범위 선택 — 개별 선택이 비면 '프로젝트 전체'가 켜지도록 */
-  const [scopes, setScopes] = useState<string[]>(mockScopes.map((s) => s.id))
+  const [scopeItems, setScopeItems] = useState<WorkItem[]>([])
+  const [scopes, setScopes] = useState<number[]>([])
   const [scopeQuery, setScopeQuery] = useState('')
   const [question, setQuestion] = useState('')
 
+  const [nativeLang, setNativeLang] = useState<NativeLang | ''>('')
+  const [answer, setAnswer] = useState<QnaResponse | null>(null)
+  const [isAsking, setIsAsking] = useState(false)
+  const [askError, setAskError] = useState<string | null>(null)
+  const [hoveredNormId, setHoveredNormId] = useState<number | null>(null)
+  const [selectedItemsCache, setSelectedItemsCache] = useState<WorkItem[]>([])
+  const [showScopeDropdown, setShowScopeDropdown] = useState(false)
+  const scopeBoxRef = useRef<HTMLDivElement>(null)
+
+  /* 검색어 입력 시에만 후보 검색 (작업이 많을 수 있어 검색어 없이는 목록을 안 불러옴) */
+  useEffect(() => {
+    if (!workspaceId) return
+    const query = scopeQuery.trim()
+    if (!query) {
+      setScopeItems([])
+      return
+    }
+    const handle = setTimeout(() => {
+      getWorkItems(workspaceId, { query, size: 20 })
+        .then((page) => setScopeItems(page.items))
+        .catch(() => {})
+    }, 250) // 타이핑 중 매 글자마다 요청 나가지 않도록 디바운스
+    return () => clearTimeout(handle)
+  }, [workspaceId, scopeQuery])
+
+  useEffect(() => {
+    getMyInfo()
+      .then((me) => setNativeLang(me.nativeLang))
+      .catch(() => {})
+  }, [])
+
+  /* 드롭다운 바깥 클릭 시 닫기 */
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (scopeBoxRef.current && !scopeBoxRef.current.contains(e.target as Node)) {
+        setShowScopeDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+
   const isAll = scopes.length === 0
 
-  const toggleScope = (id: string) =>
-    setScopes((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
-  const query = scopeQuery.trim().toLowerCase()
-  const visibleScopes = mockScopes.filter(
-    (s) => scopes.includes(s.id) || !query || s.label[lang].toLowerCase().includes(query),
-  )
+  const toggleScope = (item: WorkItem) => {
+    setScopes((prev) =>
+      prev.includes(item.id) ? prev.filter((s) => s !== item.id) : [...prev, item.id],
+    )
+    setSelectedItemsCache((prev) =>
+      prev.some((p) => p.id === item.id) ? prev : [...prev, item]
+    )
+  }
+
+  const selectedChips = selectedItemsCache.filter((s) => scopes.includes(s.id))
+  const dropdownCandidates = scopeItems.filter((s) => !scopes.includes(s.id))
+
+  const ask = async () => {
+    if (!question.trim() || !workspaceId || !nativeLang) return
+    setIsAsking(true)
+    setAskError(null)
+    try {
+      const data = await askQuestion(workspaceId, {
+        question,
+        lang: nativeLang,
+        contextWorkItemIds: isAll ? undefined : scopes,
+      })
+      setAnswer(data)
+    } catch {
+      setAskError('답변을 가져오지 못했습니다.')
+    } finally {
+      setIsAsking(false)
+    }
+  }
+
+  const handleQuestionKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Enter 전송, Shift+Enter는 줄바꿈
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      ask()
+    }
+  }
 
   return (
     <motion.div
@@ -91,28 +172,48 @@ function QA() {
                   {t('qa.scopeAll')}
                 </ScopeButton>
 
-                {visibleScopes.map((s) => (
+                {selectedChips.map((s) => (
                   <ScopeButton
                     key={s.id}
                     selected={scopes.includes(s.id)}
-                    onClick={() => toggleScope(s.id)}
+                    onClick={() => toggleScope(s)}
                   >
-                    {s.label[lang]}
+                    {s.title}
                   </ScopeButton>
                 ))}
               </div>
             </div>
 
             {/* 기능 검색 */}
-            <div className="relative mb-3">
+            <div className="relative mb-3" ref={scopeBoxRef}>
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 h-4.5 w-4.5 -translate-y-1/2 text-mocha" />
               <input
                 type="search"
                 value={scopeQuery}
                 onChange={(e) => setScopeQuery(e.target.value)}
+                onFocus={() => setShowScopeDropdown(true)}
                 placeholder={t('qa.searchFeature')}
                 className="h-8.5 w-full rounded-[9px] border-2 border-taupe bg-milk pr-4 pl-11 text-sm font-semibold text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
               />
+              {showScopeDropdown && scopeQuery.trim() && dropdownCandidates.length > 0 && (
+                <ul className="absolute top-full left-0 z-10 mt-1.5 max-h-48 w-full overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk py-1.5 shadow-lg">
+                  {dropdownCandidates.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          toggleScope(item)
+                          setScopeQuery('')
+                          setShowScopeDropdown(false)
+                        }}
+                        className="block w-full px-4 py-2 text-left text-sm font-medium text-dark-lava hover:bg-oat"
+                      >
+                        {item.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             {/* 질문 입력 */}
@@ -123,30 +224,33 @@ function QA() {
               id="qa-question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={handleQuestionKeyDown}
               className="h-34 w-full resize-none rounded-[9px] border-2 border-taupe bg-milk p-4 text-sm font-medium leading-relaxed text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
             />
+            {isAsking && <p className="mt-2 text-sm text-taupe">답변 생성 중...</p>}
+            {askError && <p className="mt-2 text-sm font-semibold text-red-600">{askError}</p>}
           </motion.section>
 
           <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-oat px-5 pt-4.5 pb-5.5">
             <CardTitle>{t('qa.answer')}</CardTitle>
 
             <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-base font-medium leading-relaxed whitespace-pre-line text-dark-lava">
-              {mockAnswer.text[lang] || (
+              {answer?.answer || (
                 <span className="text-taupe">{t('qa.answerPlaceholder')}</span>
               )}
             </div>
 
             <p className="mb-2.5 text-base font-bold text-dark-lava">{t('qa.evidence')}</p>
             <motion.ul variants={staggerParent(0.06)} className="flex flex-wrap gap-3.5">
-              {mockAnswer.evidence.map((e) => (
-                <motion.li key={e.id} variants={fadeUp}>
+              {(answer?.sources ?? []).map((e, i) => (
+                <motion.li key={`${e.url}-${i}`} variants={fadeUp}>
                   <a
                     href={e.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-11.5 items-center rounded-[7px] border-2 border-taupe bg-milk px-6 text-base font-semibold text-dark-lava hover:border-mocha"
                   >
-                    {e.label[lang]}
+                    {e.title}
                   </a>
                 </motion.li>
               ))}
@@ -161,22 +265,31 @@ function QA() {
             <h2 className="mb-3 text-xl font-bold text-milk">{t('qa.practices')}</h2>
 
             <motion.ul variants={staggerParent(0.08)} className="mb-3.5 flex flex-col gap-2.5">
-              {mockPractices.map((p) => (
-                <motion.li key={p.id} variants={fadeUp} className="rounded-lg bg-milk px-4.5 py-3.5">
+            {(answer?.relatedTeamNorms ?? []).map((p) => (
+              <motion.li
+                key={p.id}
+                variants={fadeUp}
+                className="relative rounded-lg bg-milk px-4.5 py-3.5"
+                onMouseEnter={() => setHoveredNormId(p.id)}
+                onMouseLeave={() => setHoveredNormId((prev) => (prev === p.id ? null : prev))}
+              >
                   <p className="mb-1.5 text-sm font-semibold whitespace-pre-line text-charcoal">
-                    {p.text[lang]}
+                    {p.content}
                   </p>
-                  <a
-                    href={p.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-mocha underline underline-offset-3 hover:text-charcoal"
-                  >
-                    {t('qa.viewEvidence')}
-                  </a>
+                <span className="text-sm text-mocha underline underline-offset-3 decoration-dotted">
+                  {t('qa.viewEvidence')}
+                </span>
+                {hoveredNormId === p.id && (
+                  <div className="absolute top-full left-0 z-10 mt-1.5 w-full rounded-lg bg-charcoal px-3.5 py-2.5 text-sm font-medium text-milk shadow-lg">
+                    {p.reason}
+                  </div>
+                )}
                 </motion.li>
               ))}
             </motion.ul>
+            {answer && answer.relatedTeamNorms.length === 0 && (
+            <p className="mb-3.5 text-sm font-medium text-milk/70">관련된 팀 관행이 없어요.</p>
+            )}
 
             {/* 주의 문구 */}
             <div className="flex items-start gap-2">
@@ -198,14 +311,14 @@ function QA() {
               variants={staggerParent(0.06)}
               className={`flex w-full ${SUGGESTION_WIDTH} flex-col gap-2.5`}
             >
-              {mockSuggestions.map((s) => (
-                <motion.li key={s.id} variants={fadeUp}>
+              {(answer?.followUpQuestions ?? []).map((s, i) => (
+                <motion.li key={i} variants={fadeUp}>
                   <button
                     type="button"
-                    onClick={() => setQuestion(s.label[lang])}
+                    onClick={() => setQuestion(s)}
                     className="h-13 w-full rounded-lg bg-milk px-4 text-sm font-semibold text-mocha hover:bg-oat"
                   >
-                    {s.label[lang]}
+                    {s}
                   </button>
                 </motion.li>
               ))}
