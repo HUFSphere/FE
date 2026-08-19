@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatusBadge from '../../components/ui/StatusBadge/Statusbadge'
 import type { Status } from '../../components/ui/StatusBadge/Statusbadge'
-import { ChevronDownIcon, SearchIcon, SOURCE_ICON } from '../../components/ui/icons/FeatureIcon'
+import { SearchIcon, SOURCE_ICON } from '../../components/ui/icons/FeatureIcon'
 import { mockFeatureList } from '../../mocks/features'
 import type { SourceKind } from '../../mocks/featuredetail'
+import Select from '../../components/ui/Select/Select'
+import type { SelectOption } from '../../components/ui/Select/Select'
 
 const STATUS_OPTIONS: Status[] = ['todo', 'progress', 'review', 'done', 'blocked']
 
@@ -26,36 +28,30 @@ const staggerParent = (stagger = 0.12, delay = 0) => ({
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 })
 
-/* 제목  드롭다운 */
+/* 제목 + 드롭다운 */
 function FilterSelect({
   label,
   value,
   onChange,
-  children,
+  options,
 }: {
   label: string
   value: string
   onChange: (v: string) => void
-  children: React.ReactNode
+  options: SelectOption[]
 }) {
   const { t } = useTranslation()
 
   return (
     <motion.div variants={fadeUp} className="w-64.5 shrink-0">
       <p className="mb-1.5 text-lg font-bold text-dark-lava">{label}</p>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`h-11.5 w-full appearance-none rounded-[9px] border-2 border-taupe bg-milk pr-10 pl-4 text-base font-semibold focus:outline-none focus:border-mocha ${
-            value ? 'text-dark-lava' : 'text-taupe' 
-          }`}
-        >
-          <option value="">{t('featureList.selectPlaceholder')}</option>
-          {children}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3.5 h-5 w-5 -translate-y-1/2 text-taupe" />
-      </div>
+      <Select
+        value={value}
+        onChange={onChange}
+        options={options}
+        emptyOptionLabel={t('featureList.selectPlaceholder')}
+        ariaLabel={label}
+      />
     </motion.div>
   )
 }
@@ -94,21 +90,19 @@ function FeatureList() {
 
       {/* 상태  플랫폼 */}
       <motion.div variants={staggerParent(0.1)} className="mb-4 flex items-end gap-2">
-        <FilterSelect label={t('featureList.status')} value={status} onChange={setStatus}>
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>
-              {t(`status.${s}`)}
-            </option>
-          ))}
-        </FilterSelect>
+        <FilterSelect
+          label={t('featureList.status')}
+          value={status}
+          onChange={setStatus}
+          options={STATUS_OPTIONS.map((s) => ({ value: s, label: t(`status.${s}`) }))}
+        />
 
-        <FilterSelect label={t('featureList.platform')} value={source} onChange={setSource}>
-          {SOURCE_OPTIONS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </FilterSelect>
+        <FilterSelect
+          label={t('featureList.platform')}
+          value={source}
+          onChange={setSource}
+          options={SOURCE_OPTIONS.map((s) => ({ value: s.value, label: s.label }))}
+        />
 
         <motion.div variants={fadeUp} className="relative flex-1">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-mocha" />
