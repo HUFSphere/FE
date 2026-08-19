@@ -28,6 +28,7 @@ import { getProjectMap } from '../../api/map'
 import type { MapNode, MapLink } from '../../api/map'
 import { getWorkItemDetail } from '../../api/workItems'
 import type { WorkItemDetail } from '../../api/workItems'
+import { getSourceConnections, syncSource } from '../../api/sourceSync'
 import { getWorkspaceId } from '../../utils/workspaceStorage'
 import { getUiLang } from '../../utils/lang'
 import { toUiStatus } from '../../utils/statusMap'
@@ -89,31 +90,37 @@ function ProjectMap() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [syncProgress, setSyncProgress] = useState<{ current: number; total: number; label: string } | null>(null)
+  const [syncError, setSyncError] = useState<string | null>(null)
+
   const [detail, setDetail] = useState<WorkItemDetail | null>(null)
   const [isDetailLoading, setIsDetailLoading] = useState(false)
 
+  const loadMap = useCallback(() => {
+  if (!workspaceId) {
+    setLoadError('워크스페이스 정보가 없습니다.')
+    setIsLoading(false)
+    return
+  }
+  setIsLoading(true)
+  setLoadError(null)
+  return getProjectMap(workspaceId, { lang })
+    .then((res) => {
+      setMapNodes(res.nodes)
+      setMapLinks(res.links)
+      if (res.nodes.length > 0) {
+        setSelected(String(res.nodes[0].id))
+      }
+    })
+    .catch(() => setLoadError('지도를 불러오지 못했습니다.'))
+    .finally(() => setIsLoading(false))
+}, [workspaceId, lang])
+
   /* 지도 데이터 로드 */
   useEffect(() => {
-    if (!workspaceId) {
-      setLoadError('워크스페이스 정보가 없습니다.')
-      setIsLoading(false)
-      return
-    }
-
-    setIsLoading(true)
-    setLoadError(null)
-
-    getProjectMap(workspaceId, { lang })
-      .then((res) => {
-        setMapNodes(res.nodes)
-        setMapLinks(res.links)
-        if (res.nodes.length > 0) {
-          setSelected(String(res.nodes[0].id))
-        }
-      })
-      .catch(() => setLoadError('지도를 불러오지 못했습니다.'))
-      .finally(() => setIsLoading(false))
-  }, [workspaceId, lang])
+    loadMap()
+  }, [loadMap])
 
   const initial = useMemo(() => {
     const validNodes = mapNodes.filter(
@@ -160,6 +167,31 @@ function ProjectMap() {
   }, [initial])
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => setSelected(node.id), [])
+
+  const handleSync = async () => {
+    if (!workspaceId || isSyncing) return
+    setIsSyncing(true)
+    setSyncError(null)
+    try {
+      const connections = await getSourceConnections(workspaceId)
+      const total = connections.length
+      for (let i = 0; i < total; i) {
+        const conn = connections[i]
+        setSyncProgress({ current: i + 1, total, label: conn.sourceType })
+        try {
+          await syncSource(conn.id)
+        } catch {
+          setSyncError(`${conn.sourceType} 동기화에 실패했어요.`)
+        }
+      }
+      await loadMap()
+    } catch {
+      setSyncError('동기화 대상을 불러오지 못했어요.')
+    } finally {
+      setIsSyncing(false)
+      setSyncProgress(null)
+    }
+  }
 
   /* 노드 선택 시 상세 정보 로드 */
   useEffect(() => {
@@ -215,21 +247,42 @@ function ProjectMap() {
           {t('map.title')}
         </motion.h1>
 
+          {(isSyncing || syncError) && (
+            <motion.div variants={fadeUp} className="ml-auto text-right">
+              {isSyncing && syncProgress && (
+                <p className="text-xs font-medium text-taupe">
+                  동기화 중... ({syncProgress.current}/{syncProgress.total}) {syncProgress.label}
+                </p>
+              )}
+              {syncError && <p className="text-xs font-semibold text-red-600">{syncError}</p>}
+            </motion.div>
+          )}
+
         <motion.button
           variants={fadeUp}
           type="button"
           onClick={() => navigate('/overview')}
-          className="ml-auto h-9.5 w-40 shrink-0 rounded-lg bg-almond-milk text-sm font-bold text-dark-lava hover:bg-oat"
+          className={`h-9.5 w-40 shrink-0 rounded-lg bg-almond-milk text-sm font-bold text-dark-lava hover:bg-oat ${
+            isSyncing || syncError ? '' : 'ml-auto'
+          }`}
         >
           {t('map.overview')}
         </motion.button>
-        <motion.button
-          variants={fadeUp}
-          type="button"
-          className="flex h-9.5 w-28 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-dark-lava text-sm font-bold text-milk hover:bg-mocha"
-        >
-          {t('map.sync')}
-          <ReloadIcon className="h-3.5 w-3.5" />
+          <motion.button
+            variants={fadeUp}
+            type="button"
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="flex h-9.5 w-28 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-dark-lava text-sm font-bold text-milk hover:bg-mocha"
+          >
+            {isSyncing ? (
+              <ReloadIcon className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <>
+                {t('map.sync')}
+                <ReloadIcon className="h-3.5 w-3.5" />
+              </>
+            )}
         </motion.button>
       </motion.div>
 

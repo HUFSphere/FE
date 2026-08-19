@@ -6,6 +6,7 @@ export type LinkedItem = {
   itemType: string
   title: string
   sourceUrl: string
+  linkReason: string | null
 }
 
 export type WorkItemDetail = {
@@ -20,6 +21,7 @@ export type WorkItemDetail = {
   sourceUrl: string
   sourceUpdatedAt: string | null
   summaryNative: string | null
+  completionRate: number | null
   linkedItems: LinkedItem[]
 }
 
