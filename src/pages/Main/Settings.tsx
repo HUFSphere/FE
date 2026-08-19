@@ -1,9 +1,12 @@
 // 환경 설정 페이지
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import Select from '../../components/ui/Select/Select'
-import { mockToneInstruction, mockTonePresets } from '../../mocks/settings'
+import { getTonePresets, getToneSetting, saveToneSetting } from '../../api/toneSetting'
+import type { TonePreset, PresetKey } from '../../api/toneSetting'
+import { getMyInfo, updateMyInfo } from '../../api/auth'
+import type { NativeLang } from '../../api/auth'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -29,7 +32,7 @@ function PresetCheckbox({
   children: React.ReactNode
 }) {
   return (
-    <label className="flex h-10 w-37.5 shrink-0 cursor-pointer items-center gap-2.5 rounded-md border-2 border-taupe bg-milk px-5.5 text-base font-semibold text-mocha">
+    <label className="flex h-10 shrink-0 cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-md border-2 border-taupe bg-milk px-5 text-base font-semibold text-mocha">
       <span className="relative grid h-5.5 w-5.5 shrink-0 place-items-center">
         <input
           type="checkbox"
@@ -60,49 +63,96 @@ function PresetCheckbox({
 }
 
 function Settings() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language === 'en' ? 'en' : 'ko'
+  const { t } = useTranslation()
 
-  const [uiLang, setUiLang] = useState(i18n.language === 'en' ? 'en' : 'ko')
+  const [nativeLang, setNativeLang] = useState<NativeLang | ''>('')
+  const [isSavingNativeLang, setIsSavingNativeLang] = useState(false)
+  const [nativeLangError, setNativeLangError] = useState<string | null>(null)
 
-  const changeLanguage = (next: string) => {
-    setUiLang(next)
-    i18n.changeLanguage(next)
+  useEffect(() => {
+    getMyInfo()
+      .then((me) => setNativeLang(me.nativeLang))
+      .catch(() => {})
+  }, [])
+
+  const handleNativeLangChange = async (value: string) => {
+    const prev = nativeLang
+    setNativeLang(value as NativeLang)
+    setIsSavingNativeLang(true)
+    setNativeLangError(null)
+    try {
+      await updateMyInfo({ nativeLang: value as NativeLang })
+    } catch {
+      setNativeLang(prev)
+      setNativeLangError('저장하지 못했습니다.')
+    } finally {
+      setIsSavingNativeLang(false)
+    }
   }
 
   const LANGUAGE_OPTIONS = [
     { value: 'ko', label: '한국어' },
     { value: 'en', label: 'English' },
     { value: 'de', label: 'DEUTSCH' },
-    { value: 'jp', label: '日本語' },
-    { value: 'ch', label: '中國語' },
-    { value: 'sp', label: 'ESPAÑOL' },
-    { value: 'ma', label: 'BAHASA MELAYU' },
+    { value: 'ja', label: '日本語' },
+    { value: 'zh', label: '中國語' },
+    { value: 'es', label: 'ESPAÑOL' },
+    { value: 'ms', label: 'BAHASA MELAYU' },
     { value: 'it', label: 'ITALIANO' },
     { value: 'fr', label: 'FRANÇAIS' },
     { value: 'ar', label: 'اللغة العربية' },
     { value: 'ru', label: 'РУССКИЙ' },
   ]
 
-  /* AI 답변 톤 설정 */
-  const [instruction, setInstruction] = useState(mockToneInstruction[lang])
-  const [presets, setPresets] = useState<string[]>(['concise'])
-  const [saved, setSaved] = useState(false)
+ /* AI 답변 톤 설정 */
+ const [tonePresets, setTonePresets] = useState<TonePreset[]>([])
+ const [presetKeys, setPresetKeys] = useState<PresetKey[]>(['beginner'])
+ const [customText, setCustomText] = useState('')
+ const [isSavingTone, setIsSavingTone] = useState(false)
+ const [toneError, setToneError] = useState<string | null>(null)
+ const [saved, setSaved] = useState(false)
 
-  const togglePreset = (id: string) => {
-    const next = presets.includes(id) ? presets.filter((p) => p !== id) : [...presets, id]
-    setPresets(next)
-    setInstruction(
-      mockTonePresets
-        .filter((p) => next.includes(p.id))
-        .map((p) => p.prompt[lang])
-        .join('\n'),
-    )
-    setSaved(false)
-  }
+ /* 초기 톤 설정 불러오기 */
+ useEffect(() => {
+   getToneSetting()
+     .then((data) => {
+       setPresetKeys(data.presetKeys)
+       setCustomText(data.customText ?? '')
+     })
+     .catch(() => {})
+ }, [])
 
-  /* 백엔드 연동 시 지시문을 서버에 저장 필요 */
-  const save = () => setSaved(true)
+ /* 모국어가 바뀔 때마다 프리셋 라벨을 그 언어로 다시 조회 */
+ useEffect(() => {
+   if (!nativeLang) return
+   getTonePresets(nativeLang)
+     .then(setTonePresets)
+     .catch(() => {})
+ }, [nativeLang])
+
+ const togglePreset = (key: PresetKey) => {
+  // 라디오형 단일 선택. "프리셋 없음"은 백엔드가 presetKeys 최소 1개 제약을
+  // 풀어주면 그때 추가. 지금은 항상 정확히 1개를 유지한다.
+   setPresetKeys([key])
+   setSaved(false)
+ }
+
+ const save = async () => {
+   if (presetKeys.length === 0) {
+     setToneError('프리셋을 1개 이상 선택해주세요.')
+     return
+   }
+   setIsSavingTone(true)
+   setToneError(null)
+   try {
+     await saveToneSetting({ presetKeys, customText: customText || undefined })
+     setSaved(true)
+   } catch {
+     setToneError('저장하지 못했습니다.')
+   } finally {
+     setIsSavingTone(false)
+   }
+ }
 
   return (
     <motion.div
@@ -115,24 +165,20 @@ function Settings() {
         {t('settings.title')}
       </motion.h1>
 
-      {/* 언어 변경 */}
-      <motion.section variants={fadeUp} className="mb-3.25 rounded-[10px] bg-oat px-6 pt-3.5 pb-6">
+      {/* 모국어 (AI 답변 언어) */}
+      <motion.section variants={fadeUp} className="mb-4.25 rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-1.5">
-          <CardTitle>{t('settings.language')}</CardTitle>
+          <CardTitle>{t('settings.nativeLanguage')}</CardTitle>
         </div>
 
-        <label htmlFor="ui-lang" className="mb-2 block text-base font-semibold text-mocha">
-          {t('settings.uiLanguage')}
+        <label className="mb-2 block text-base font-semibold text-mocha">
+          {t('settings.nativeLanguageDesc')}
         </label>
 
-        <Select
-          value={uiLang}
-          onChange={changeLanguage}
-          options={LANGUAGE_OPTIONS}
-          ariaLabel={t('settings.uiLanguage')}
-          buttonClassName="flex h-11.5 w-full items-center rounded-[10px] border-2 border-taupe bg-milk pr-12 pl-4.5 text-left text-base font-semibold text-dark-lava transition-colors focus:outline-none"
-          chevronClassName="pointer-events-none absolute top-1/2 right-4.5 -translate-y-1/2 text-dark-lava"
-        />
+        <Select value={nativeLang} onChange={handleNativeLangChange} options={LANGUAGE_OPTIONS} />
+
+        {isSavingNativeLang && <p className="mt-2 text-sm text-taupe">저장 중...</p>}
+        {nativeLangError && <p className="mt-2 text-sm font-semibold text-red-600">{nativeLangError}</p>}
       </motion.section>
 
       {/* AI 답변 톤 설정 */}
@@ -148,20 +194,21 @@ function Settings() {
           <button
             type="button"
             onClick={save}
+            disabled={isSavingTone}
             className="ml-auto h-9.5 w-20 shrink-0 rounded-[10px] bg-charcoal text-sm font-semibold text-milk hover:bg-mocha"
           >
-            {saved ? t('settings.saved') : t('settings.save')}
+            {isSavingTone ? '저장 중...' : saved ? t('settings.saved') : t('settings.save')}
           </button>
         </div>
 
         {/* 지시문 입력 */}
         <textarea
-          value={instruction}
+          value={customText}
           onChange={(e) => {
-            setInstruction(e.target.value)
-            setPresets([]) 
+            setCustomText(e.target.value)
             setSaved(false)
           }}
+          maxLength={500}
           aria-label={t('settings.tone')}
           className="mb-2.5 h-96.5 w-full resize-none rounded-[10px] border-2 border-mocha bg-milk p-5 text-base leading-relaxed text-mocha placeholder-mocha focus:border-mocha focus:outline-none"
         />
@@ -169,14 +216,15 @@ function Settings() {
         {/* 프리셋 */}
         <p className="mb-2 text-lg font-semibold text-mocha">{t('settings.presets')}</p>
         <motion.ul variants={staggerParent(0.05)} className="flex flex-wrap gap-2.75">
-          {mockTonePresets.map((p) => (
-            <motion.li key={p.id} variants={fadeUp}>
-              <PresetCheckbox checked={presets.includes(p.id)} onChange={() => togglePreset(p.id)}>
-                {p.label[lang]}
+          {tonePresets.map((p) => (
+            <motion.li key={p.presetKey} variants={fadeUp}>
+              <PresetCheckbox checked={presetKeys.includes(p.presetKey)} onChange={() => togglePreset(p.presetKey)}>
+                {p.label}
               </PresetCheckbox>
             </motion.li>
           ))}
         </motion.ul>
+        {toneError && <p className="mt-2 text-sm font-semibold text-red-600">{toneError}</p>}
       </motion.section>
     </motion.div>
   )

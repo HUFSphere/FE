@@ -69,7 +69,15 @@ function FeatureDetail() {
       {/* 기능 상세 보기 제목과 질문하기 버튼 */}
       <motion.div variants={fadeUp} className="mb-3.5 flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-dark-lava">
-          {t('featureDetail.breadcrumb')}
+          <button
+            type="button"
+            onClick={() => navigate('/features')}
+            className="hover:underline"
+          >
+            {t('featureDetail.breadcrumbList')}
+          </button>
+          {' > '}
+          {t('featureDetail.breadcrumbDetail')}
         </h1>
         <button
           type="button"
@@ -86,9 +94,13 @@ function FeatureDetail() {
           <GithubIcon className="h-6 w-6 shrink-0 text-dark-lava" />
           <h2 className="text-xl font-semibold text-dark-lava">{feature.title}</h2>
 
-          {/* 상태 (API에 진행률(%) 필드가 없어 상태 배지만 표시) */}
           <div className="mr-6.75 ml-auto flex h-12.5 items-center justify-center gap-3 rounded-lg bg-milk px-6">
             <StatusBadge status={toUiStatus(feature.status)} />
+            {typeof feature.completionRate === 'number' && (
+              <span className="text-sm font-semibold text-dark-lava">
+                {Math.round(feature.completionRate)}%
+              </span>
+            )}
             {feature.authorLogin && (
               <span className="text-sm font-medium text-taupe">by {feature.authorLogin}</span>
             )}
@@ -142,6 +154,35 @@ function FeatureDetail() {
           )}
         </motion.ul>
       </motion.section>
+
+      {/* 연결 근거 */}
+      {feature.linkedItems.some((item) => item.linkReason) && (
+        <motion.section variants={fadeUp} className="mb-2 rounded-[10px] bg-oat px-5 pt-5 pb-6">
+          <div className="mb-4.5 flex items-center gap-2.5">
+            <LinkIcon className="h-6 w-6 shrink-0 text-dark-lava" />
+            <h2 className="text-xl font-bold text-dark-lava">{t('featureDetail.evidence')}</h2>
+          </div>
+
+          <motion.ul
+            variants={staggerParent(0.08)}
+            initial="hidden"
+            animate="show"
+            className="mx-6.75 flex flex-col gap-2 rounded-lg bg-milk px-6 py-4"
+          >
+            {feature.linkedItems
+              .filter((item) => item.linkReason)
+              .map((item) => (
+                <motion.li
+                  key={item.id}
+                  variants={fadeUp}
+                  className="text-sm leading-relaxed text-taupe"
+                >
+                  {item.linkReason}
+                </motion.li>
+              ))}
+          </motion.ul>
+        </motion.section>
+      )}
     </motion.div>
   )
 }

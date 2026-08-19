@@ -219,7 +219,8 @@
     "empty": "조건에 맞는 기능이 없습니다"
   },
   "featureDetail": {
-    "breadcrumb": "기능 목록 > 기능 상세 보기",
+    "breadcrumbList": "기능 목록",
+    "breadcrumbDetail": "기능 상세 보기",
     "ask": "이 기능에 대해 질문하기",
     "linked": "연결된 항목",
     "evidence": "연결 근거",
@@ -295,7 +296,9 @@
     "toneDesc": "아래 텍스트를 자유롭게 수정하거나, 원하는 대로 새로 작성하세요.",
     "save": "저장",
     "saved": "저장됨",
-    "presets": "프리셋"
+    "presets": "프리셋",
+    "nativeLanguage": "모국어",
+    "nativeLanguageDesc": "AI가 답변할 때 사용하는 언어입니다."
   },
   "githubCallback": {
     "title": "Github 연동",
