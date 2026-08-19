@@ -87,7 +87,7 @@
           "desc": "Browse the map · sourced Q&A · confirmed norms"
         },
         "leader": {
-          "title": "Lead",
+          "title": "Leader",
           "desc": "Confirm, edit, delete norms · manual links · source management"
         }
       },
@@ -102,7 +102,7 @@
   },
   "role": {
     "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
-    "leader": "Lead",
+    "leader": "Leader",
     "member": "Member"
   },
   "language": {
@@ -145,7 +145,40 @@
       "connectNext": "Connect next item",
       "finishAndContinue": "Finish and continue",
       "retry": "Retry",
-      "close": "Close"
+      "close": "Close",
+      "defaultWorkspaceName": "{{name}}'s workspace",
+      "workspaceModalTitle": "Create a workspace",
+      "workspaceNameHeading": "Enter a workspace name",
+      "workspaceNameDesc": "This is the name your team will see. You can change it later in team settings.",
+      "workspaceNamePlaceholder": "e.g. HUFSphere",
+      "createWorkspace": "Create",
+      "creating": "Creating...",
+      "nameLengthError": "The name must be 1–50 characters",
+      "createFailed": "Couldn't create the workspace",
+      "saveTarget": "Connect",
+      "saving": "Saving...",
+      "targetRequired": "Select what to connect",
+      "saveFailed": "Couldn't connect",
+      "repoLoadFailed": "Couldn't load your repositories",
+      "repoEmpty": "No accessible repositories",
+      "private": "private",
+      "target": {
+        "github": {
+          "heading": "Select a repository to connect",
+          "desc": "Repositories your Github account can access.",
+          "placeholder": ""
+        },
+        "figma": {
+          "heading": "Enter the Figma file link",
+          "desc": "Open the file in Figma and paste the link from the address bar.",
+          "placeholder": "https://www.figma.com/design/..."
+        },
+        "notion": {
+          "heading": "Enter the page to connect",
+          "desc": "Enter the name of a page you allowed during Notion connection.",
+          "placeholder": "e.g. Onboarding guide"
+        }
+      }
     }
   },
   "projectStatus": {
@@ -243,7 +276,15 @@
     "removeTitle": "Remove member",
     "removeConfirm": "Remove {{name}} from the team?",
     "removeDesc": "The removed member will need to be invited again.",
-    "confirmYes": "Confirm"
+    "confirmYes": "Confirm",
+    "noWorkspace": "No workspace information found.",
+    "memberLoadFailed": "Couldn't load the member list.",
+    "connectionLoadFailed": "Couldn't load the connection list.",
+    "actionFailed": "Something went wrong.",
+    "inviteFailed": "Couldn't issue an invite code.",
+    "disconnectFailed": "Couldn't disconnect.",
+    "noMembers": "No teammates yet.",
+    "loading": "Loading..."
   },
   "settings": {
     "title": "Settings",
@@ -254,5 +295,43 @@
     "save": "Save",
     "saved": "Saved",
     "presets": "Presets"
+  },
+  "githubCallback": {
+    "title": "Connect Github",
+    "loading": "Checking your Github connection...",
+    "invalidTitle": "Invalid request",
+    "invalidDesc": "Couldn't find the workspace. Please try again from team settings.",
+    "errorTitle": "Failed to connect Github",
+    "errorDesc": "Please try again.",
+    "retry": "Reconnect",
+    "backToSettings": "Back",
+    "selectHeading": "Select a repository to connect",
+    "selectDesc": "Repositories your Github account can access.",
+    "repoLoadFailed": "Couldn't load your repositories",
+    "repoEmpty": "No accessible repositories",
+    "private": "private",
+    "public": "public",
+    "defaultBranch": "Default branch",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "saveFailed": "Couldn't connect",
+    "cancel": "Cancel"
+  },
+  "figmaCallback": {
+    "loading": "Checking your Figma connection...",
+    "invalidTitle": "Invalid request",
+    "invalidDesc": "Couldn't find the workspace. Please try again from team settings.",
+    "errorTitle": "Failed to connect Figma",
+    "errorDesc": "Please try again.",
+    "retry": "Reconnect",
+    "back": "Back",
+    "inputHeading": "Enter the Figma file link",
+    "inputDesc": "Open the file in Figma and paste the link from the address bar.",
+    "placeholder": "https://www.figma.com/design/...",
+    "linkRequired": "Enter the file link to connect",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "saveFailed": "Couldn't connect",
+    "cancel": "Cancel"
   }
 }

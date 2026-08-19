@@ -6,6 +6,9 @@ import Landing from './pages/OnBoarding/Landing'
 import SignIn from './pages/OnBoarding/SignIn'
 import SignUp from './pages/OnBoarding/SignUp'
 import OAuthCallback from './pages/auth/OAuthCallback.tsx'
+import GithubOAuthCallback from './pages/auth/GithubOAuthCallback.tsx'
+import NotionOAuthCallback from './pages/auth/NotionOAuthCallback.tsx'
+import FigmaOAuthCallback from './pages/auth/FigmaOAuthCallback.tsx'
 import Language from './pages/OnBoarding/Language'
 import Role from './pages/OnBoarding/Role'
 import InviteCode from './pages/OnBoarding/InviteCode'
@@ -27,6 +30,9 @@ export const router = createBrowserRouter([
   { path: '/sign-in', element: <SignIn /> },
   { path: '/sign-up', element: <SignUp /> },
   { path: '/oauth/callback', element: <OAuthCallback /> },
+  { path: '/oauth/github/callback', element: <GithubOAuthCallback /> },
+  { path: '/oauth/figma/callback', element: <FigmaOAuthCallback /> },
+  { path: '/oauth/notion/callback', element: <NotionOAuthCallback /> },
   { path: '/onboarding/language', element: <Language /> },
   { path: '/onboarding/role', element: <Role /> },
   { path: '/onboarding/invite-code', element: <InviteCode /> },

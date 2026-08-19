@@ -1,7 +1,6 @@
 // 프로젝트 연결 (팀장용) 페이지
-// TODO: 실제 OAuth 연동 전까지는 setTimeout으로 흉내내고, 랜덤하게 성공/실패를 시뮬레이션합니다.
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -15,8 +14,16 @@ import {
   ArrowRightIcon,
   ReloadIcon,
 } from '../../components/ui/icons/ModalIcons'
+import {
+  getSourceConnections,
+  startSourceOAuth,
+  toSourceKey,
+} from '../../api/sources'
+import type { SourceKey } from '../../api/sources'
+import { createWorkspace } from '../../api/workspace'
+import { getMyInfo } from '../../api/auth'
+import { getWorkspaceId, setWorkspaceId } from '../../utils/workspaceStorage'
 
-type SourceKey = 'github' | 'notion' | 'figma'
 type ConnectionStatus = 'idle' | 'connecting' | 'success' | 'error'
 
 const SOURCES: { key: SourceKey; label: string; LogoIcon: typeof GithubIcon; OutlineIcon: typeof GithubIcon }[] = [
@@ -175,6 +182,14 @@ function Connect() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
+  const [workspaceId, setWorkspaceIdState] = useState<number | null>(getWorkspaceId())
+
+  /* 워크스페이스 이름 입력 모달 */
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false)
+  const [workspaceName, setWorkspaceName] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+
   const [statuses, setStatuses] = useState<Record<SourceKey, ConnectionStatus>>({
     github: 'idle',
     notion: 'idle',
@@ -186,16 +201,68 @@ function Connect() {
   const connectedCount = SOURCES.filter((s) => statuses[s.key] === 'success').length
   const canFinish = connectedCount > 0
 
+  /* 이미 연동된 소스를 화면에 반영 */
+  const reloadConnections = useCallback(async (id: number) => {
+    try {
+      const list = await getSourceConnections(id)
+      setStatuses((prev) => {
+        const next = { ...prev }
+        list.forEach((c) => {
+          next[toSourceKey(c.sourceType)] = 'success'
+        })
+        return next
+      })
+    } catch {
+      /* 목록 조회 실패는 화면을 막지 않음 */
+    }
+  }, [])
+
+  /* 진입 시 — 워크스페이스가 없으면 이름을 먼저 받기 */
+  useEffect(() => {
+    if (workspaceId) {
+      reloadConnections(workspaceId)
+      return
+    }
+
+    setIsNameModalOpen(true)
+    getMyInfo()
+      .then((me) => setWorkspaceName(t('connect.modal.defaultWorkspaceName', { name: me.name })))
+      .catch(() => setWorkspaceName(''))
+  }, [workspaceId, reloadConnections, t])
+
+  const createAndStore = async () => {
+    const name = workspaceName.trim()
+    if (name.length < 1 || name.length > 50) {
+      setNameError(t('connect.modal.nameLengthError'))
+      return
+    }
+
+    setIsCreating(true)
+    setNameError(null)
+    try {
+      const created = await createWorkspace({ name })
+      setWorkspaceId(created.workspaceId)
+      setWorkspaceIdState(created.workspaceId)
+      setIsNameModalOpen(false)
+    } catch {
+      setNameError(t('connect.modal.createFailed'))
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   const attemptConnect = (key: SourceKey) => {
+    if (!workspaceId) {
+      setIsNameModalOpen(true)
+      return
+    }
+
     setStatuses((prev) => ({ ...prev, [key]: 'connecting' }))
     setModalSource(key)
     setIsModalOpen(true)
 
-    // TODO: 실제로는 여기서 OAuth 리다이렉트 → 콜백 결과로 성공/실패를 받습니다.
-    setTimeout(() => {
-      const succeeded = Math.random() > 0.3
-      setStatuses((prev) => ({ ...prev, [key]: succeeded ? 'success' : 'error' }))
-    }, 1500)
+    /* 서버가 각 서비스 인가 페이지로 리다이렉트 */
+    startSourceOAuth(key, workspaceId)
   }
 
   const closeModal = () => {
@@ -286,6 +353,42 @@ function Connect() {
           </button>
         </motion.div>
       </motion.div>
+
+      {/* 워크스페이스 이름 입력 */}
+      <ActionModal
+        isOpen={isNameModalOpen}
+        onClose={() => setIsNameModalOpen(false)}
+        title={t('connect.modal.workspaceModalTitle')}
+        icon={<CheckCircleIcon className="h-17.5 w-17.5 text-mocha" />}
+        message={{
+          title: t('connect.modal.workspaceNameHeading'),
+          description: t('connect.modal.workspaceNameDesc'),
+        }}
+        extraContent={
+          <div className="flex flex-col gap-1.5">
+            <input
+              type="text"
+              value={workspaceName}
+              onChange={(e) => {
+                setWorkspaceName(e.target.value)
+                setNameError(null)
+              }}
+              maxLength={50}
+              placeholder={t('connect.modal.workspaceNamePlaceholder')}
+              aria-label={t('connect.modal.workspaceNameHeading')}
+              className="h-11.5 w-full rounded-[9px] border-2 border-taupe bg-milk px-4 text-base font-medium text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
+            />
+            {nameError && <p className="text-sm font-semibold text-mocha">{nameError}</p>}
+          </div>
+        }
+        buttons={[
+          {
+            label: isCreating ? t('connect.modal.creating') : t('connect.modal.createWorkspace'),
+            variant: 'primary',
+            onClick: createAndStore,
+          },
+        ]}
+      />
 
       {/* 연결 진행 상태 모달 */}
       {activeSource && (

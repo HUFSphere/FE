@@ -11,10 +11,12 @@ import {
   ReloadIcon,
 } from '../../components/ui/icons/ModalIcons'
 import {
-  mockConnectedUrl,
-  mockConnections,
-} from '../../mocks/team'
-import type { Connection } from '../../mocks/team'
+  deleteSourceConnection,
+  getSourceConnections,
+  startSourceOAuth,
+  toSourceKey,
+} from '../../api/sources'
+import type { SourceKey } from '../../api/sources'
 import {
   getMembers,
   removeMember as apiRemoveMember,
@@ -34,6 +36,23 @@ const staggerParent = (stagger = 0.12, delay = 0) => ({
   hidden: {},
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 })
+
+/* 화면에 항상 보여줄 소스 3종 — 연동 여부와 무관하게 행을 유지합니다 */
+const SOURCE_ROWS: { source: SourceKey; label: string }[] = [
+  { source: 'github', label: 'Github' },
+  { source: 'figma', label: 'Figma' },
+  { source: 'notion', label: 'Notion' },
+]
+
+/* 연동 목록 조회 결과를 행에 채운 형태 */
+type ConnectionRow = {
+  source: SourceKey
+  label: string
+  /* 연동 ID — 해제할 때 필요. 미연동이면 null */
+  sourceId: number | null
+  /* Github: owner/repo, Figma: 파일 링크, Notion: 보드명 */
+  target: string
+}
 
 /* 카드 제목 */
 function CardTitle({ children }: { children: React.ReactNode }) {
@@ -117,7 +136,10 @@ function TeamSettings() {
   const [members, setMembers] = useState<WorkspaceMember[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [connections, setConnections] = useState<Connection[]>(mockConnections)
+  const [rows, setRows] = useState<ConnectionRow[]>(
+    SOURCE_ROWS.map((row) => ({ ...row, sourceId: null, target: '' })),
+  )
+  const [isConnectionLoading, setIsConnectionLoading] = useState(true)
   const [myUserId, setMyUserId] = useState<number | null>(null)
   const [myRole, setMyRole] = useState<'leader' | 'member' | null>(null)
 
@@ -126,8 +148,8 @@ function TeamSettings() {
   const [copied, setCopied] = useState(false)
 
   /* 연결 / 해제 확인 */
-  const [connecting, setConnecting] = useState<Connection | null>(null)
-  const [pending, setPending] = useState<Connection | null>(null)
+  const [connecting, setConnecting] = useState<ConnectionRow | null>(null)
+  const [pending, setPending] = useState<ConnectionRow | null>(null)
 
   /* 나가기/추방 확인 대상 (본인이면 나가기, 남이면 추방으로 분기) */
   const [removeTarget, setRemoveTarget] = useState<WorkspaceMember | null>(null)
@@ -135,7 +157,7 @@ function TeamSettings() {
 
   useEffect(() => {
     if (!workspaceId) {
-      setLoadError('워크스페이스 정보가 없습니다.')
+      setLoadError(t('teamSettings.noWorkspace'))
       setIsLoading(false)
       return
     }
@@ -147,9 +169,31 @@ function TeamSettings() {
         const meAsMember = memberList.find((m) => m.userId === me.userId)
         setMyRole(meAsMember?.role ?? null)
       })
-      .catch(() => setLoadError('멤버 목록을 불러오지 못했습니다.'))
+      .catch(() => setLoadError(t('teamSettings.memberLoadFailed')))
       .finally(() => setIsLoading(false))
-  }, [workspaceId])
+  }, [workspaceId, t])
+
+  /* 연동 목록 조회 */
+  useEffect(() => {
+    if (!workspaceId) {
+      setIsConnectionLoading(false)
+      return
+    }
+
+    getSourceConnections(workspaceId)
+      .then((list) => {
+        setRows(
+          SOURCE_ROWS.map((row) => {
+            const found = list.find((c) => toSourceKey(c.sourceType) === row.source)
+            return found
+              ? { ...row, sourceId: found.id, target: found.targetRepoOrBoard }
+              : { ...row, sourceId: null, target: '' }
+          }),
+        )
+      })
+      .catch(() => setLoadError(t('teamSettings.connectionLoadFailed')))
+      .finally(() => setIsConnectionLoading(false))
+  }, [workspaceId, t])
 
   const leader = members.find((m) => m.role === 'leader')
   const regularMembers = members.filter((m) => m.role !== 'leader')
@@ -169,14 +213,16 @@ function TeamSettings() {
       setMembers((prev) => prev.filter((m) => m.userId !== removeTarget.userId))
       setRemoveTarget(null)
     } catch {
-      setLoadError('처리하지 못했습니다.')
+      setLoadError(t('teamSettings.actionFailed'))
     } finally {
       setIsRemoving(false)
     }
   }
 
-  const updateUrl = (source: string, url: string) =>
-    setConnections((prev) => prev.map((c) => (c.source === source ? { ...c, url } : c)))
+  const clearRow = (source: SourceKey) =>
+    setRows((prev) =>
+      prev.map((row) => (row.source === source ? { ...row, sourceId: null, target: '' } : row)),
+    )
 
   const openInvite = async () => {
     if (!workspaceId) return
@@ -185,7 +231,7 @@ function TeamSettings() {
       setInviteCode(res.inviteCode)
       setCopied(false)
     } catch {
-      setLoadError('초대 코드를 발급하지 못했습니다.')
+      setLoadError(t('teamSettings.inviteFailed'))
     }
   }
 
@@ -199,16 +245,27 @@ function TeamSettings() {
     }
   }
 
+  /* 인증 페이지로 이동 — 콜백 후 이 페이지로 돌아옵니다 */
   const connect = () => {
-    if (!connecting) return
-    updateUrl(connecting.source, mockConnectedUrl[connecting.source])
+    if (!connecting || !workspaceId) return
+    const source = connecting.source
     setConnecting(null)
+    startSourceOAuth(source, workspaceId)
   }
 
-  const disconnect = () => {
+  const disconnect = async () => {
     if (!pending) return
-    updateUrl(pending.source, '')
+    const { source, sourceId } = pending
     setPending(null)
+    if (sourceId === null) return
+
+    try {
+      await deleteSourceConnection(sourceId)
+      clearRow(source)
+      setLoadError(null)
+    } catch {
+      setLoadError(t('teamSettings.disconnectFailed'))
+    }
   }
 
   return (
@@ -222,7 +279,7 @@ function TeamSettings() {
         {t('teamSettings.title')}
       </motion.h1>
 
-      {loadError && <p className="mb-4 text-sm font-semibold text-red-600">{loadError}</p>}
+      {loadError && <p className="mb-4 text-sm font-semibold text-mocha">{loadError}</p>}
 
       {/* 팀 설정 */}
       <motion.section variants={fadeUp} className="mb-4.25 rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
@@ -267,7 +324,7 @@ function TeamSettings() {
             })}
           </AnimatePresence>
           {!isLoading && regularMembers.length === 0 && (
-            <li className="py-4 text-sm font-medium text-taupe">아직 팀원이 없습니다.</li>
+            <li className="py-4 text-sm font-medium text-taupe">{t('teamSettings.noMembers')}</li>
           )}
         </motion.ul>
       </motion.section>
@@ -279,26 +336,28 @@ function TeamSettings() {
         </div>
 
         <motion.ul variants={staggerParent(0.08)} className="flex flex-col gap-3">
-          {connections.map((c) => {
-            const Icon = SOURCE_ICON[c.source]
-            const connected = c.url.trim() !== ''
+          {rows.map((row) => {
+            const Icon = SOURCE_ICON[row.source]
+            const connected = row.sourceId !== null
             return (
-              <motion.li key={c.source} variants={fadeUp} className="flex items-center gap-2.5">
+              <motion.li key={row.source} variants={fadeUp} className="flex items-center gap-2.5">
                 <Icon className="h-6 w-6 shrink-0 text-dark-lava" />
-                <span className="w-20 shrink-0 text-xl font-bold text-charcoal">{c.label}</span>
+                <span className="w-20 shrink-0 text-xl font-bold text-charcoal">{row.label}</span>
 
                 <input
-                  type="url"
-                  value={c.url}
+                  type="text"
+                  value={row.target}
                   readOnly
-                  aria-label={`${c.label} URL`}
-                  placeholder={t('teamSettings.connectPlaceholder')}
+                  aria-label={`${row.label} ${t('teamSettings.connections')}`}
+                  placeholder={
+                    isConnectionLoading ? t('teamSettings.loading') : t('teamSettings.connectPlaceholder')
+                  }
                   className="h-8.5 flex-1 rounded-[7px] border-2 border-taupe bg-milk px-4.5 text-sm font-semibold text-mocha placeholder-taupe focus:outline-none"
                 />
 
                 <ConnectionBadge
                   connected={connected}
-                  onClick={connected ? () => setPending(c) : () => setConnecting(c)}
+                  onClick={connected ? () => setPending(row) : () => setConnecting(row)}
                 >
                   {connected ? t('teamSettings.connected') : t('teamSettings.notConnected')}
                 </ConnectionBadge>
