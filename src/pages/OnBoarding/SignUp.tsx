@@ -5,6 +5,8 @@ import type { SubmitEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { signup, login, startOAuth } from '../../api/auth'
+import { ApiError } from '../../api/client'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -220,11 +222,22 @@ function SignUp() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // TODO: 회원가입 API 연동 전까지는 다음 온보딩 단계로 넘깁니다.
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-    navigate('/sign-in')
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      await signup({ email, password, name })
+      await login(email, password)
+      navigate('/onboarding/language')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '회원가입에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -288,13 +301,16 @@ function SignUp() {
             />
           </motion.div>
 
+          {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+
           {/* 회원가입 버튼 */}
           <motion.button
             variants={fadeUp}
             type="submit"
-            className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-white"
+            disabled={isSubmitting}
+            className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-white disabled:opacity-60"
           >
-            {t('signUp.submit')}
+            {isSubmitting ? '...' : t('signUp.submit')}
           </motion.button>
         </motion.form>
 
@@ -302,8 +318,7 @@ function SignUp() {
         <motion.button
           variants={fadeUp}
           type="button"
-          // TODO: 구글 OAuth 연동
-          onClick={() => navigate('/sign-in')}
+          onClick={() => startOAuth('google')}
           className="flex h-15.5 w-full items-center justify-center gap-2.5 rounded-[10px] border border-mocha bg-white text-[20px] font-semibold text-charcoal"
         >
           <GoogleIcon />

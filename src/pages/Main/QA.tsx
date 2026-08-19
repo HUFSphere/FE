@@ -19,7 +19,7 @@ const staggerParent = (stagger = 0.12, delay = 0) => ({
 
 /* 질문 카드 */
 function CardTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-2.5 text-[24px] font-semibold text-dark-lava">{children}</h2>
+  return <h2 className="mb-2.5 text-xl font-semibold text-dark-lava">{children}</h2>
 }
 
 /* 질문 범위 */
@@ -37,7 +37,7 @@ function ScopeButton({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex h-7.5 shrink-0 items-center rounded-full border-2 px-3.5 text-[14px] font-semibold transition-colors ${
+      className={`flex h-7.5 shrink-0 items-center rounded-full border-2 px-3.5 text-sm font-semibold transition-colors ${
         selected
           ? 'border-charcoal bg-charcoal text-milk'
           : 'border-taupe bg-milk text-taupe hover:border-mocha hover:text-mocha'
@@ -73,7 +73,7 @@ function QA() {
       variants={staggerParent(0.15)}
       className="mx-auto w-full max-w-369.25"
     >
-      <motion.h1 variants={fadeUp} className="mb-4 text-[28px] font-extrabold tracking-tight text-dark-lava">
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-extrabold tracking-tight text-dark-lava">
          {t('qa.title')}
       </motion.h1>
 
@@ -111,26 +111,26 @@ function QA() {
                 value={scopeQuery}
                 onChange={(e) => setScopeQuery(e.target.value)}
                 placeholder={t('qa.searchFeature')}
-                className="h-8.5 w-full rounded-[9px] border-2 border-taupe bg-milk pr-4 pl-11 text-[14px] font-semibold text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
+                className="h-8.5 w-full rounded-[9px] border-2 border-taupe bg-milk pr-4 pl-11 text-sm font-semibold text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
               />
             </div>
 
             {/* 질문 입력 */}
-            <label htmlFor="qa-question" className="mb-2.5 block text-xl font-bold text-dark-lava">
+            <label htmlFor="qa-question" className="mb-2.5 block text-base font-bold text-dark-lava">
               {t('qa.askLabel')}
             </label>
             <textarea
               id="qa-question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="h-34 w-full resize-none rounded-[9px] border-2 border-taupe bg-milk p-4 text-[14px] font-medium leading-relaxed text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
+              className="h-34 w-full resize-none rounded-[9px] border-2 border-taupe bg-milk p-4 text-sm font-medium leading-relaxed text-dark-lava placeholder-taupe focus:border-mocha focus:outline-none"
             />
           </motion.section>
 
           <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-oat px-5 pt-4.5 pb-5.5">
             <CardTitle>{t('qa.answer')}</CardTitle>
 
-            <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-[15px] font-medium leading-relaxed whitespace-pre-line text-dark-lava">
+            <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-base font-medium leading-relaxed whitespace-pre-line text-dark-lava">
               {mockAnswer.text[lang] || (
                 <span className="text-taupe">{t('qa.answerPlaceholder')}</span>
               )}
@@ -190,7 +190,8 @@ function QA() {
               </p>
             </div>
           </motion.section>
-
+          
+          {/* 후속 질문 제안 */}
           <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
             <h2 className="mb-7 text-xl font-semibold text-dark-lava">{t('qa.suggestions')}</h2>
             <motion.ul

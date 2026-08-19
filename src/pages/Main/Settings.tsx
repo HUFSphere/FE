@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { ChevronDownIcon } from '../../components/ui/icons/FeatureIcon'
+import Select from '../../components/ui/Select/Select'
 import { mockToneInstruction, mockTonePresets } from '../../mocks/settings'
 
 const fadeUp = {
@@ -70,6 +70,20 @@ function Settings() {
     i18n.changeLanguage(next)
   }
 
+  const LANGUAGE_OPTIONS = [
+    { value: 'ko', label: '한국어' },
+    { value: 'en', label: 'English' },
+    { value: 'de', label: 'DEUTSCH' },
+    { value: 'jp', label: '日本語' },
+    { value: 'ch', label: '中國語' },
+    { value: 'sp', label: 'ESPAÑOL' },
+    { value: 'ma', label: 'BAHASA MELAYU' },
+    { value: 'it', label: 'ITALIANO' },
+    { value: 'fr', label: 'FRANÇAIS' },
+    { value: 'ar', label: 'اللغة العربية' },
+    { value: 'ru', label: 'РУССКИЙ' },
+  ]
+
   /* AI 답변 톤 설정 */
   const [instruction, setInstruction] = useState(mockToneInstruction[lang])
   const [presets, setPresets] = useState<string[]>(['concise'])
@@ -97,7 +111,7 @@ function Settings() {
       variants={staggerParent(0.15)}
       className="mx-auto w-full max-w-369.75"
     >
-      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-semibold tracking-tight text-dark-lava">
+      <motion.h1 variants={fadeUp} className="mb-4 text-2xl font-bold tracking-tight text-dark-lava">
         {t('settings.title')}
       </motion.h1>
 
@@ -111,18 +125,14 @@ function Settings() {
           {t('settings.uiLanguage')}
         </label>
 
-        <div className="relative">
-          <select
-            id="ui-lang"
-            value={uiLang}
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="h-11.5 w-full appearance-none rounded-[10px] border border-taupe bg-milk pr-12 pl-4.5 text-sm font-semibold text-mocha focus:border-mocha focus:outline-none"
-          >
-            <option value="ko">한국어</option>
-            <option value="en">English</option>
-          </select>
-          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-mocha" />
-        </div>
+        <Select
+          value={uiLang}
+          onChange={changeLanguage}
+          options={LANGUAGE_OPTIONS}
+          ariaLabel={t('settings.uiLanguage')}
+          buttonClassName="flex h-11.5 w-full items-center rounded-[10px] border-2 border-taupe bg-milk pr-12 pl-4.5 text-left text-base font-semibold text-dark-lava transition-colors focus:outline-none"
+          chevronClassName="pointer-events-none absolute top-1/2 right-4.5 -translate-y-1/2 text-dark-lava"
+        />
       </motion.section>
 
       {/* AI 답변 톤 설정 */}
@@ -138,7 +148,7 @@ function Settings() {
           <button
             type="button"
             onClick={save}
-            className="ml-auto h-9.5 w-25 shrink-0 rounded-[10px] bg-charcoal text-base font-semibold text-milk hover:bg-mocha"
+            className="ml-auto h-9.5 w-20 shrink-0 rounded-[10px] bg-charcoal text-sm font-semibold text-milk hover:bg-mocha"
           >
             {saved ? t('settings.saved') : t('settings.save')}
           </button>
@@ -157,7 +167,7 @@ function Settings() {
         />
 
         {/* 프리셋 */}
-        <p className="mb-2 text-[16px] font-semibold text-mocha">{t('settings.presets')}</p>
+        <p className="mb-2 text-lg font-semibold text-mocha">{t('settings.presets')}</p>
         <motion.ul variants={staggerParent(0.05)} className="flex flex-wrap gap-2.75">
           {mockTonePresets.map((p) => (
             <motion.li key={p.id} variants={fadeUp}>
