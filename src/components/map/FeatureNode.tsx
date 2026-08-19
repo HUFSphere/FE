@@ -3,22 +3,21 @@ import { Handle, Position } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
 import { motion } from 'framer-motion'
 
-/* 강조 톤 4가지 */
-const TONE = {
-  root: 'bg-mocha text-milk',
-  dark: 'bg-charcoal text-milk',
-  light: 'bg-oat text-dark-lava',
-  muted: 'bg-taupe text-charcoal',
-} as const
+/* 소스별 색상 — 기존 tone(강조 톤) 대신 sourceType으로 구분 */
+const SOURCE_TONE: Record<string, string> = {
+  figma: 'bg-taupe text-charcoal',
+  github: 'bg-charcoal text-milk',
+  notion: 'bg-oat text-dark-lava',
+}
 
 export type FeatureNodeData = {
   label: string
-  tone: keyof typeof TONE
-  selected?: boolean
+  sourceType: string
 }
 
 function FeatureNode({ data, selected }: NodeProps) {
   const d = data as unknown as FeatureNodeData
+  const tone = SOURCE_TONE[d.sourceType] ?? 'bg-mocha text-milk'
 
   return (
     <motion.div
@@ -26,11 +25,10 @@ function FeatureNode({ data, selected }: NodeProps) {
       animate={{ opacity: 1, scale: selected ? 1.05 : 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       whileHover={{ scale: selected ? 1.05 : 1.03 }}
-      className={`flex h-14.25 w-59.5 items-center justify-center rounded-[10px] px-4 text-center text-[15px] font-semibold ${
-        TONE[d.tone]
-      } ${selected ? 'ring-2 ring-dark-lava ring-offset-2 ring-offset-milk' : ''}`}
+      className={`flex h-14.25 w-59.5 items-center justify-center rounded-[10px] px-4 text-center text-[15px] font-semibold ${tone} ${
+        selected ? 'ring-2 ring-dark-lava ring-offset-2 ring-offset-milk' : ''
+      }`}
     >
-      {/* 연결점은 보이지 않게 두고 선만 이어집니다 */}
       <Handle type="target" position={Position.Left} className="h-1! w-1! border-0! bg-transparent!" />
       <span className="truncate">{d.label}</span>
       <Handle type="source" position={Position.Right} className="h-1! w-1! border-0! bg-transparent!" />
