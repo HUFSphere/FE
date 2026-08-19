@@ -190,7 +190,8 @@ function QA() {
               </p>
             </div>
           </motion.section>
-
+          
+          {/* 후속 질문 제안 */}
           <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
             <h2 className="mb-7 text-xl font-semibold text-dark-lava">{t('qa.suggestions')}</h2>
             <motion.ul
