@@ -1,12 +1,15 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from 'react'
 import { MapIcon, ListIcon, ChatIcon, TeamIcon, SettingsIcon } from '../ui/icons/SidebarIcons'
 import LanguageToggle from './LanguageToggle'
 import Avatar from '../ui/icons/Avatar'
 import { motion } from 'framer-motion'
-import { mockUser } from '../../mocks/user'
 import SidebarDecor from '../ui/decor/SidebarDecor'
 import { getUiLang } from '../../utils/lang'
+import { getMyInfo } from '../../api/auth'
+import { getWorkspaceDetail } from '../../api/workspace'
+import { getWorkspaceId } from '../../utils/workspaceStorage'
 
 const menuItems = [
   { key: 'sidebar.map', path: '/map', Icon: MapIcon },
@@ -19,10 +22,29 @@ const menuItems = [
 function Sidebar() {
     const { t, i18n } = useTranslation()
     const lang = getUiLang(i18n.language)
-    const displayName =
-    lang === 'en' && mockUser.name.en.length > 10
-      ? mockUser.name.en.split(' ')[0]
-      : mockUser.name[lang]
+    const workspaceId = getWorkspaceId()
+
+    const [userName, setUserName] = useState('')
+    const [workspaceName, setWorkspaceName] = useState('')
+    const [role, setRole] = useState<'leader' | 'member' | ''>('')
+
+    useEffect(() => {
+      getMyInfo()
+        .then((me) => setUserName(me.name))
+        .catch(() => {})
+
+      if (workspaceId) {
+        getWorkspaceDetail(workspaceId)
+          .then((ws) => {
+            setWorkspaceName(ws.name)
+            setRole(ws.myRole)
+          })
+          .catch(() => {})
+      }
+    }, [workspaceId])
+
+    const displayName = lang === 'en' && userName.length > 10 ? userName.split(' ')[0] : userName
+    const roleLabel = role === 'leader' ? t('sidebar.roleLeader') : role === 'member' ? t('sidebar.roleMember') : ''
 
   return (
     <aside className="relative flex w-80 shrink-0 flex-col bg-oat px-5 py-6">
@@ -71,9 +93,13 @@ function Sidebar() {
       <div className="flex items-center gap-6 px-1">
         <Avatar className="h-20 w-20 shrink-0 text-mocha" />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[32px] font-extrabold text-mocha">{displayName}</div>
-          <div className="truncate text-2xl font-semibold text-mocha">{mockUser.projectName[lang]}</div>
-          <div className="text-2xl font-semibold text-mocha">{mockUser.role[lang]}</div>
+          <div className="truncate text-[32px] font-extrabold text-mocha" title={displayName}>
+            {displayName}
+          </div>
+          <div className="truncate text-2xl font-semibold text-mocha" title={workspaceName}>
+            {workspaceName}
+          </div>
+          <div className="text-2xl font-semibold text-mocha">{roleLabel}</div>
         </div>
       </div>
     </aside>

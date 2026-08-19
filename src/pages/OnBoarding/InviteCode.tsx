@@ -5,6 +5,9 @@ import type { SubmitEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { joinWorkspace } from '../../api/workspace'
+import { ApiError } from '../../api/client'
+import { setWorkspaceId } from '../../utils/workspaceStorage'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -163,11 +166,22 @@ function InviteCode() {
   const navigate = useNavigate()
 
   const [code, setCode] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // TODO: 초대 코드 검증 API 연동 전까지는 바로 프로젝트 지도로 넘깁니다.
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    navigate('/map')
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+     e.preventDefault()
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      const res = await joinWorkspace(code.trim())
+      setWorkspaceId(res.workspaceId)
+      navigate('/map')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '초대 코드 참여에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -213,12 +227,14 @@ function InviteCode() {
             autoComplete="one-time-code"
             className="h-15 w-full rounded-[10px] border border-almond-milk bg-white px-4.5 text-[20px] text-dark-lava outline-none transition-colors hover:border-mocha focus:border-mocha"
           />
+          {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
           <motion.button
             variants={fadeUp}
             type="submit"
-            className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-white"
+            disabled={isSubmitting}
+            className="h-15.5 w-full rounded-[10px] border border-mocha bg-mocha text-[20px] font-bold text-white disabled:opacity-60"
           >
-            {t('inviteCode.submit')}
+            {isSubmitting ? '...' : t('inviteCode.submit')}
           </motion.button>
         </motion.div>
       </motion.form>

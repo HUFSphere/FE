@@ -35,3 +35,21 @@ export async function getMyWorkspaces() {
     { workspaceId: number; name: string; myRole: string; ownerUserId: number; sourceCount: number; createdAt: string }[]
    >('/api/v1/workspaces', { method: 'GET' })
 }
+
+export type WorkspaceDetail = {
+  workspaceId: number
+  name: string
+  ownerUserId: number
+  myRole: 'leader' | 'member'
+  memberCount: number
+  sourceCount: number
+  createdAt: string
+}
+
+export async function getWorkspaceDetail(workspaceId: number) {
+  return apiRequest<WorkspaceDetail>(`/api/v1/workspaces/${workspaceId}`, { method: 'GET' })
+}
+
+export async function leaveWorkspace(workspaceId: number) {
+  return apiRequest<null>(`/api/v1/workspaces/${workspaceId}/leave`, { method: 'DELETE' })
+}

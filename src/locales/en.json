@@ -4,7 +4,9 @@
     "features": "Feature List",
     "qa": "Project Q&A",
     "team": "Team Settings",
-    "settings": "Settings"
+    "settings": "Settings",
+    "roleLeader": "Leader",
+    "roleMember": "Member"
   },
   "header": {
     "lastSynced": "Last synced: {{time}}",
@@ -233,7 +235,15 @@
     "connectDesc": "Once connected, records from {{source}} appear on the map and in Q&A.\nAn authentication window will open.",
     "connectAction": "Continue with {{source}}",
     "connectFootnote": "Read access only. We never modify or delete your repositories or documents.",
-    "connectPlaceholder": "The URL appears once connected"
+    "connectPlaceholder": "The URL appears once connected",
+    "leaveTeam": "Leave",
+    "leaveTitle": "Leave workspace",
+    "leaveConfirm": "Are you sure you want to leave?",
+    "leaveDesc": "If you leave, you can only rejoin with an invite code.",
+    "removeTitle": "Remove member",
+    "removeConfirm": "Remove {{name}} from the team?",
+    "removeDesc": "The removed member will need to be invited again.",
+    "confirmYes": "Confirm"
   },
   "settings": {
     "title": "Settings",

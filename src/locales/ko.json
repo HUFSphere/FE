@@ -4,7 +4,9 @@
     "features": "기능 목록",
     "qa": "프로젝트 Q&A",
     "team": "팀 설정",
-    "settings": "환경 설정"
+    "settings": "환경 설정",
+    "roleLeader": "팀장",
+    "roleMember": "팀원"
   },
   "header": {
     "lastSynced": "마지막 동기화: {{time}}",
@@ -233,7 +235,15 @@
     "connectDesc": "연결하면 {{source}}의 기록을 불러와 지도와 Q&A에 반영합니다.\n계정 인증 창이 열립니다.",
     "connectAction": "{{source}}으로 계속하기",
     "connectFootnote": "읽기 권한만 요청합니다. 저장소나 문서를 수정·삭제하지 않습니다.",
-    "connectPlaceholder": "연결하면 주소가 표시됩니다"
+    "connectPlaceholder": "연결하면 주소가 표시됩니다",
+    "leaveTeam": "나가기",
+    "leaveTitle": "워크스페이스 나가기",
+    "leaveConfirm": "정말 나가시겠어요?",
+    "leaveDesc": "나가면 다시 초대 코드로만 참여할 수 있어요.",
+    "removeTitle": "팀원 내보내기",
+    "removeConfirm": "{{name}}님을 내보내시겠어요?",
+    "removeDesc": "내보낸 팀원은 다시 초대해야 해요.",
+    "confirmYes": "확인"
   },
   "settings": {
     "title": "환경 설정",
