@@ -284,7 +284,8 @@
     "inviteFailed": "Couldn't issue an invite code.",
     "disconnectFailed": "Couldn't disconnect.",
     "noMembers": "No teammates yet.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "leaderOnly": "Only the team leader can change project connections."
   },
   "settings": {
     "title": "Settings",
@@ -333,5 +334,22 @@
     "saving": "Saving...",
     "saveFailed": "Couldn't connect",
     "cancel": "Cancel"
+  },
+  "notionCallback": {
+    "loading": "Checking your Notion connection...",
+    "invalidTitle": "Invalid access",
+    "invalidDesc": "We couldn't verify the Notion connection. Please try again.",
+    "errorTitle": "Couldn't connect Notion",
+    "errorDesc": "Authorization didn't complete. Please try again.",
+    "inputHeading": "Enter the page to connect",
+    "inputDesc": "Enter the name of a page you allowed during Notion authorization.",
+    "placeholder": "e.g. Onboarding guide",
+    "pageNameRequired": "Enter a page name",
+    "saveFailed": "Couldn't connect",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "back": "Go back"
   }
 }

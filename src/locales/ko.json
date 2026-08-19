@@ -284,7 +284,8 @@
     "inviteFailed": "초대 코드를 발급하지 못했습니다.",
     "disconnectFailed": "연결을 해제하지 못했습니다.",
     "noMembers": "아직 팀원이 없습니다.",
-    "loading": "불러오는 중..."
+    "loading": "불러오는 중...",
+    "leaderOnly": "프로젝트 연결은 팀장만 변경할 수 있습니다."
   },
   "settings": {
     "title": "환경 설정",
@@ -333,5 +334,22 @@
     "saving": "저장 중...",
     "saveFailed": "연동에 실패했습니다",
     "cancel": "취소"
+  },
+  "notionCallback": {
+    "loading": "Notion 연결을 확인하고 있어요...",
+    "invalidTitle": "잘못된 접근입니다",
+    "invalidDesc": "Notion 연결 정보를 확인할 수 없습니다. 다시 시도해주세요.",
+    "errorTitle": "Notion 연결에 실패했어요",
+    "errorDesc": "인증이 완료되지 않았습니다. 다시 시도해주세요.",
+    "inputHeading": "연동할 페이지를 입력하세요",
+    "inputDesc": "Notion 연결 시 접근을 허용한 페이지의 이름을 입력해주세요.",
+    "placeholder": "예: 온보딩 가이드",
+    "pageNameRequired": "페이지 이름을 입력해주세요",
+    "saveFailed": "연동에 실패했습니다",
+    "confirm": "연동하기",
+    "saving": "저장 중...",
+    "retry": "다시 시도",
+    "cancel": "취소",
+    "back": "돌아가기"
   }
 }
