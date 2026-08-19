@@ -120,6 +120,16 @@ function Settings() {
           >
             <option value="ko">한국어</option>
             <option value="en">English</option>
+            <option value="de">DEUTSCH</option>
+            <option value="jp">日本語</option>
+            <option value="ch">中國語</option>
+            <option value="sp">ESPAÑOL</option>
+            <option value="ma">BAHASA MELAYU</option>
+            <option value="it">ITALIANO</option>
+            <option value="fr">FRANÇAIS</option>
+            <option value="ar">اللغة العربية</option>
+            <option value="ru">РУССКИЙ</option>
+            
           </select>
           <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4.5 h-5 w-5 -translate-y-1/2 text-dark-lava" />
         </div>
