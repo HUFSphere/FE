@@ -24,7 +24,7 @@ function Header() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 left-80 z-40 flex h-22 items-center justify-end gap-10 bg-milk px-8">
+      <header className="sticky top-0 z-40 flex h-22 shrink-0 items-center justify-end gap-10 bg-milk px-8">
         <span className="text-2xl font-semibold text-taupe">
           {t('header.lastSynced', {
             time: formatDistanceToNow(new Date(mockUser.lastSyncedAt), {
