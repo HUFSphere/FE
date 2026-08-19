@@ -298,7 +298,6 @@
     "presets": "Presets",
     "nativeLanguage": "Native Language",
     "nativeLanguageDesc": "The language the AI uses when answering."
-    "presets": "Presets"
   },
   "githubCallback": {
     "title": "Connect Github",

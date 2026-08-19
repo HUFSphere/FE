@@ -298,7 +298,6 @@
     "presets": "프리셋",
     "nativeLanguage": "모국어",
     "nativeLanguageDesc": "AI가 답변할 때 사용하는 언어입니다."
-    "presets": "프리셋"
   },
   "githubCallback": {
     "title": "Github 연동",
