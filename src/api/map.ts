@@ -8,6 +8,7 @@ export type MapNode = {
   title: string
   status: string
   statusLabel: string
+  completionRate: number | null
   summaryBrief: string | null
   authorLogin: string | null
   sourceUrl: string

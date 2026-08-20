@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { ko, enUS } from 'date-fns/locale'
 import { mockUser } from '../../mocks/user'
+import { getNotifications, markNotificationAsRead } from '../../api/notifications'
+import type { NotificationItem } from '../../api/notifications'
 import BellIcon from '../ui/icons/BellIcon'
 import LogoutIcon from '../ui/icons/LogoutIcon'
 import ActionModal from '../ui/modal/ActionModal'
@@ -15,9 +17,32 @@ function Header() {
   const dateLocale = i18n.language === 'ko' ? ko : enUS
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [isNotificationLoading, setIsNotificationLoading] = useState(false)
+
+  const handleToggleNotifications = () => {
+    const willOpen = !isNotificationOpen
+    setIsNotificationOpen(willOpen)
+    if (willOpen) {
+      setIsNotificationLoading(true)
+      getNotifications(4)
+        .then((res) => {
+          setNotifications(res.notifications)
+        })
+        .catch(() => setNotifications([]))
+        .finally(() => setIsNotificationLoading(false))
+    }
+  }
+
+  const handleReadNotification = (id: number) => {
+    markNotificationAsRead(id)
+      .then(() => {
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+      })
+      .catch(() => {})
+  }
 
   const handleConfirmLogout = () => {
-    // 백엔드 API 연동되면 여기에 signOut() 호출 등 추가 필요할 듯?
     setIsLogoutModalOpen(false)
     navigate('/sign-in')
   }
@@ -37,7 +62,7 @@ function Header() {
           <div className="relative">
             <button
               aria-label={t('header.notification')}
-              onClick={() => setIsNotificationOpen((prev) => !prev)}
+              onClick={handleToggleNotifications}
               className="flex items-center justify-center"
             >
               <BellIcon className="h-7 w-7 text-mocha" />
@@ -55,10 +80,25 @@ function Header() {
                     className="absolute right-0 top-full z-40 mt-3 w-105 rounded-[10px] border-[1.5px] border-taupe bg-milk p-6 shadow-lg"
                    >
                     <p className="mb-4 text-xl font-bold text-dark-lava">{t('header.notification')}</p>
-                    <p className="text-base text-taupe">
-                      {/* TODO: 실제 알림 API 연동 전까지의 플레이스홀더 */}
-                      {t('header.notificationEmpty')}
-                    </p>
+                    {isNotificationLoading ? (
+                      <p className="text-base text-taupe">...</p>
+                    ) : notifications.length === 0 ? (
+                      <p className="text-base text-taupe">{t('header.notificationEmpty')}</p>
+                    ) : (
+                      <ul className="flex flex-col gap-3">
+                        {notifications.map((n) => (
+                          <li
+                            key={n.id}
+                            onClick={() => !n.read && handleReadNotification(n.id)}
+                            className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${
+                              n.read ? 'text-taupe' : 'font-semibold text-dark-lava'
+                            }`}
+                          >
+                            {n.message}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </motion.div>
                 </>
               )}

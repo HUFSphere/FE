@@ -357,6 +357,11 @@ function ProjectMap() {
                 {/* 상태 */}
                 <motion.div variants={fadeUp} className="flex items-center gap-1.5">
                   <StatusBadge status={toUiStatus(detail.status)} />
+                  {typeof detail.completionRate === 'number' && (
+                    <span className="text-sm font-semibold text-dark-lava">
+                      {Math.round(detail.completionRate)}%
+                    </span>
+                  )}
                   {detail.authorLogin && (
                     <span className="text-sm font-medium text-taupe">by {detail.authorLogin}</span>
                   )}
@@ -415,6 +420,22 @@ function ProjectMap() {
                     })}
                   </motion.ul>
                 </motion.div>
+
+                {/* 연결 근거 */}
+                {detail.linkedItems.some((item) => item.linkReason) && (
+                  <motion.div variants={fadeUp} className="flex flex-col gap-3">
+                    <p className="text-base font-semibold text-dark-lava">{t('featureDetail.evidence')}</p>
+                    <motion.ul variants={staggerParent(0.05)} className="flex flex-col gap-2 rounded-lg bg-milk px-3.5 py-3">
+                      {detail.linkedItems
+                        .filter((item) => item.linkReason)
+                        .map((item) => (
+                          <motion.li key={item.id} variants={fadeUp} className="text-sm leading-relaxed text-taupe">
+                            {item.linkReason}
+                          </motion.li>
+                        ))}
+                    </motion.ul>
+                  </motion.div>
+                )}
 
                 {/* 액션 */}
                 <motion.div variants={fadeUp} className="mt-auto flex flex-col gap-3 pt-5">
