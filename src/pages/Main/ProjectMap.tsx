@@ -175,7 +175,7 @@ function ProjectMap() {
     try {
       const connections = await getSourceConnections(workspaceId)
       const total = connections.length
-      for (let i = 0; i < total; i) {
+      for (let i = 0; i < total; i++) {
         const conn = connections[i]
         setSyncProgress({ current: i + 1, total, label: conn.sourceType })
         try {
