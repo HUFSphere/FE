@@ -2,6 +2,8 @@
 
 GitHub / Figma / Notion에 흩어진 팀 기록을 하나로 모아 보여주는 LinkBoard 서비스의 프론트엔드입니다.
 
+**배포 주소**: https://hufsphere-linkboard.vercel.app  
+
 ## 기술 스택
 
 - React + Vite + TypeScript
@@ -118,5 +120,4 @@ feat/기능명
 
 - `develop`에 직접 푸시하지 않습니다.
 - 기능 브랜치에서 작업 후 PR을 올리고, **리뷰 승인 후 팀장이 머지**합니다.
-- PR 제목도 커밋 메시지와 같은 태그 형식을 따릅니다.
 - `develop → main`은 배포 시점에 팀장이 직접 병합합니다 (PR 없이).

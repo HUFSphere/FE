@@ -4,11 +4,355 @@
     "features": "Feature List",
     "qa": "Project Q&A",
     "team": "Team Settings",
-    "settings": "Settings"
+    "settings": "Settings",
+    "roleLeader": "Leader",
+    "roleMember": "Member"
   },
   "header": {
     "lastSynced": "Last synced: {{time}}",
     "notification": "Notification",
-    "logout": "Log out"
+    "notificationEmpty": "You don't have any new notifications yet.",
+    "logout": "Log out",
+    "logoutModal": {
+      "title": "Log out",
+      "confirmTitle": "Are you sure you want to log out?",
+      "confirmDesc": "You'll need to sign in again to use the service after logging out.",
+      "confirm": "Log out",
+      "cancel": "Cancel"
+    }
+  },
+  "status": {
+    "todo": "To do",
+    "progress": "In progress",
+    "review": "In review",
+    "done": "Done",
+    "blocked": "Blocked"
+  },
+  "landing": {
+    "headline": "Your team’s scattered records,\ngathered into\none feature map",
+    "lede": "LinkBoard groups the work, decisions, and designs scattered\nacross GitHub, Notion, and Figma into a single map, feature by feature.",
+    "shotAlt": "Project map screen",
+    "sources": {
+      "github": "Why the code, how far along → the map’s backbone",
+      "notion": "Why the decision → meetings & requirements",
+      "figma": "Why the screen → design files"
+    },
+    "problem": {
+      "kicker": "Problem · Solution",
+      "title": "The records are still there.\nThe context is not.",
+      "items": {
+        "1": "Code lives in GitHub, decisions in Notion, screen intent in Figma. Understanding one feature means switching windows three times.",
+        "2": "Only the people who were there know that “this PR came out of that meeting.”",
+        "3": "Anyone who joined recently has to start by asking how far along each feature actually is."
+      }
+    },
+    "features": {
+      "1": {
+        "kicker": "Feature 01",
+        "title": "A map grouped by feature",
+        "desc": "People don’t think in sources. They think in “the checkout feature.”\nDesigns, decisions, and code for one feature gather on a single branch.",
+        "rows": {
+          "github": "#142 Payment API integration",
+          "notion": "PG selection meeting notes",
+          "figma": "Checkout flow"
+        }
+      },
+      "2": {
+        "kicker": "Feature 02",
+        "title": "Q&A grounded in your records",
+        "desc": "Answers come from your team’s actual records.\nYou can see which record each answer came from.",
+        "question": "Q) Why is coupon support on hold?",
+        "rows": {
+          "github": "#158 · blocked",
+          "notion": "Feb 10 coupon policy thread"
+        }
+      },
+      "3": {
+        "kicker": "Feature 03",
+        "title": "Progress you don’t have to ask about",
+        "desc": "Status for each feature is collected from the sources automatically.\nWhat’s blocked right now shows up on one screen.",
+        "rows": {
+          "1": "Payment API integration",
+          "2": "Coupon support",
+          "3": "Delivery tracking"
+        }
+      }
+    },
+    "cta": {
+      "title": "“Why is it like this?”\nNow the map answers.",
+      "desc": "The lead connects the sources once. Everyone who joins after that never has to ask.",
+      "roles": {
+        "member": {
+          "title": "Member",
+          "desc": "Browse the map · see feature context · ask grounded questions"
+        },
+        "leader": {
+          "title": "Leader",
+          "desc": "Connect sources · invite members · manage the workspace"
+        }
+      },
+      "button": "Get started"
+    }
+  },
+  "inviteCode": {
+    "title": "Enter your invite code!",
+    "subtitle": "Enter the code you received and join the project",
+    "label": "Invite code",
+    "submit": "Join the project"
+  },
+  "role": {
+    "prompt": "당신의 역할은 무엇인가요?\nWHAT IS YOUR ROLE?",
+    "leader": "Leader",
+    "member": "Member"
+  },
+  "language": {
+    "prompt": "당신의 언어는 무엇인가요?\nWHAT IS YOUR LANGUAGE?"
+  },
+  "signUp": {
+    "title": "Welcome aboard!",
+    "subtitle": "Fill in the fields below and start your project",
+    "email": "E-mail",
+    "password": "Password",
+    "name": "Name",
+    "submit": "SIGN UP",
+    "google": "Start with Google"
+  },
+  "signIn": {
+    "title": "Welcome!",
+    "subtitle": "Create a project or join one right now!",
+    "email": "E-mail",
+    "password": "Password",
+    "submit": "SIGN IN",
+    "google": "Continue with Google",
+    "noAccount": "Don’t have an account?",
+    "signUp": "Start by signing up",
+    "illustrationAlt": "LinkBoard map illustration"
+  },
+  "connect": {
+    "title": "Connect your project",
+    "subtitle": "Start connecting with Github, Notion, and Figma",
+    "requireOne": "At least one project connection is required.",
+    "finish": "Finish",
+    "modal": {
+      "titleWithSource": "{{source}} Connection",
+      "connectingTitle": "Redirecting to {{source}} authentication.",
+      "connectingDesc": "Redirecting to the authentication window.\nPlease wait a moment...",
+      "successTitle": "{{source}} connected successfully.",
+      "successDesc": "[Repository name] has been connected.",
+      "errorTitle": "Connection failed.",
+      "errorDesc": "{{source}} authentication was not completed. Please try again.",
+      "errorBanner": "Message placeholder: e.g. - Failed to connect {{source}} project. (Code: 000)",
+      "connectNext": "Connect next item",
+      "finishAndContinue": "Finish and continue",
+      "retry": "Retry",
+      "close": "Close",
+      "defaultWorkspaceName": "{{name}}'s workspace",
+      "workspaceModalTitle": "Create a workspace",
+      "workspaceNameHeading": "Enter a workspace name",
+      "workspaceNameDesc": "This is the name your team will see. You can change it later in team settings.",
+      "workspaceNamePlaceholder": "e.g. HUFSphere",
+      "createWorkspace": "Create",
+      "creating": "Creating...",
+      "nameLengthError": "The name must be 1–50 characters",
+      "createFailed": "Couldn't create the workspace",
+      "saveTarget": "Connect",
+      "saving": "Saving...",
+      "targetRequired": "Select what to connect",
+      "saveFailed": "Couldn't connect",
+      "repoLoadFailed": "Couldn't load your repositories",
+      "repoEmpty": "No accessible repositories",
+      "private": "private",
+      "target": {
+        "github": {
+          "heading": "Select a repository to connect",
+          "desc": "Repositories your Github account can access.",
+          "placeholder": ""
+        },
+        "figma": {
+          "heading": "Enter the Figma file link",
+          "desc": "Open the file in Figma and paste the link from the address bar.",
+          "placeholder": "https://www.figma.com/design/..."
+        },
+        "notion": {
+          "heading": "Enter the page to connect",
+          "desc": "Enter the name of a page you allowed during Notion connection.",
+          "placeholder": "e.g. Onboarding guide"
+        }
+      }
+    }
+  },
+  "projectStatus": {
+    "breadcrumbMap": "Project Map",
+    "breadcrumbCurrent": "Project Status",
+    "statusOptions": {
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "done": "Done"
+    },
+    "overallProgress": "Overall progress",
+    "recentIssues": "Recent issues",
+    "connectionBasis": "Connection basis: AI's brief explanation",
+    "askAbout": "Ask about {{source}}",
+    "viewIssueList": "View issue list",
+    "recentActivity": "Recent activity",
+    "aiRecommendedQuestions": "AI recommended questions"
+  },
+  "map": {
+    "title": "Project map",
+    "overview": "View project status",
+    "sync": "Sync",
+    "summary": "Summary",
+    "linked": "Linked items {{count}}",
+    "detail": "View detail",
+    "ask": "Ask about this feature",
+    "empty": "Select a feature on the map",
+    "cursorSelect": "Select mode",
+    "cursorPan": "Pan mode"
+  },
+  "featureList": {
+    "title": "Feature list",
+    "status": "Status",
+    "platform": "Platform",
+    "selectPlaceholder": "Select ...",
+    "search": "Search",
+    "detail": "View detail",
+    "empty": "No features match these filters"
+  },
+  "featureDetail": {
+    "breadcrumbList": "Feature list",
+    "breadcrumbDetail": "Feature detail",
+    "ask": "Ask about this feature",
+    "linked": "Linked items",
+    "evidence": "Why they are linked",
+    "viewOn": "View on {{source}}"
+  },
+  "qa": {
+    "title": "Project Q&A",
+    "scope": "Scope",
+    "scopeAll": "Whole project",
+    "searchFeature": "Search features ...",
+    "askLabel": "Ask about this project",
+    "answer": "Answer",
+    "answerPlaceholder": "The answer will appear here ...",
+    "evidence": "Sources used",
+    "practices": "Team norm analysis",
+    "viewEvidence": "View the source record",
+    "disclaimer": "These are patterns found in recent records.\nThey may not match your team’s actual norms.",
+    "suggestions": "Follow-up questions"
+  },
+  "teamSettings": {
+    "title": "Team settings",
+    "members": "Members",
+    "addMember": "Add member",
+    "leader": "Lead",
+    "member": "Members",
+    "removeMember": "Remove member",
+    "connections": "Project connections",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "disconnectTitle": "Disconnect source",
+    "disconnectBanner": "{{source}}",
+    "disconnectConfirm": "Disconnect this source?",
+    "disconnectDesc": "Its records will no longer appear on the map or in Q&A.\nReconnecting restores them as they were.",
+    "disconnectAction": "Disconnect",
+    "cancel": "Cancel",
+    "disconnectFootnote": "The original repository or document is not deleted.",
+    "inviteTitle": "Invite a teammate",
+    "inviteBanner": "An invite code has been issued",
+    "inviteDesc": "Share this code and your teammate can join the project.",
+    "copyCode": "Copy code",
+    "copied": "Copied",
+    "regenerate": "Issue a new code",
+    "inviteFootnote": "Issuing a new code invalidates the previous one.",
+    "connectTitle": "Connect a source",
+    "connectHeading": "Connect your {{source}} account?",
+    "connectDesc": "Once connected, records from {{source}} appear on the map and in Q&A.\nAn authentication window will open.",
+    "connectAction": "Continue with {{source}}",
+    "connectFootnote": "Read access only. We never modify or delete your repositories or documents.",
+    "connectPlaceholder": "The URL appears once connected",
+    "leaveTeam": "Leave",
+    "leaveTitle": "Leave workspace",
+    "leaveConfirm": "Are you sure you want to leave?",
+    "leaveDesc": "If you leave, you can only rejoin with an invite code.",
+    "removeTitle": "Remove member",
+    "removeConfirm": "Remove {{name}} from the team?",
+    "removeDesc": "The removed member will need to be invited again.",
+    "confirmYes": "Confirm",
+    "noWorkspace": "No workspace information found.",
+    "memberLoadFailed": "Couldn't load the member list.",
+    "connectionLoadFailed": "Couldn't load the connection list.",
+    "actionFailed": "Something went wrong.",
+    "inviteFailed": "Couldn't issue an invite code.",
+    "disconnectFailed": "Couldn't disconnect.",
+    "noMembers": "No teammates yet.",
+    "loading": "Loading...",
+    "leaderOnly": "Only the team leader can change project connections."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "uiLanguage": "Interface language",
+    "tone": "AI answer tone",
+    "toneDesc": "Edit the text below, or write your own instructions.",
+    "save": "Save",
+    "saved": "Saved",
+    "presets": "Presets",
+    "nativeLanguage": "Native Language",
+    "nativeLanguageDesc": "The language the AI uses when answering."
+  },
+  "githubCallback": {
+    "title": "Connect Github",
+    "loading": "Checking your Github connection...",
+    "invalidTitle": "Invalid request",
+    "invalidDesc": "Couldn't find the workspace. Please try again from team settings.",
+    "errorTitle": "Failed to connect Github",
+    "errorDesc": "Please try again.",
+    "retry": "Reconnect",
+    "backToSettings": "Back",
+    "selectHeading": "Select a repository to connect",
+    "selectDesc": "Repositories your Github account can access.",
+    "repoLoadFailed": "Couldn't load your repositories",
+    "repoEmpty": "No accessible repositories",
+    "private": "private",
+    "public": "public",
+    "defaultBranch": "Default branch",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "saveFailed": "Couldn't connect",
+    "cancel": "Cancel"
+  },
+  "figmaCallback": {
+    "loading": "Checking your Figma connection...",
+    "invalidTitle": "Invalid request",
+    "invalidDesc": "Couldn't find the workspace. Please try again from team settings.",
+    "errorTitle": "Failed to connect Figma",
+    "errorDesc": "Please try again.",
+    "retry": "Reconnect",
+    "back": "Back",
+    "inputHeading": "Enter the Figma file link",
+    "inputDesc": "Open the file in Figma and paste the link from the address bar.",
+    "placeholder": "https://www.figma.com/design/...",
+    "linkRequired": "Enter the file link to connect",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "saveFailed": "Couldn't connect",
+    "cancel": "Cancel"
+  },
+  "notionCallback": {
+    "loading": "Checking your Notion connection...",
+    "invalidTitle": "Invalid access",
+    "invalidDesc": "We couldn't verify the Notion connection. Please try again.",
+    "errorTitle": "Couldn't connect Notion",
+    "errorDesc": "Authorization didn't complete. Please try again.",
+    "inputHeading": "Enter the page to connect",
+    "inputDesc": "Enter the name of a page you allowed during Notion authorization.",
+    "placeholder": "e.g. Onboarding guide",
+    "pageNameRequired": "Enter a page name",
+    "saveFailed": "Couldn't connect",
+    "confirm": "Connect",
+    "saving": "Saving...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "back": "Go back"
   }
 }
