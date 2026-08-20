@@ -92,7 +92,8 @@ function PageOne({ animateMode }: { animateMode: 'mount' | 'inView' }) {
       {...triggerProps}
       exit="exit"
       variants={pageVariants}
-      className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[501fr_996fr] lg:gap-[clamp(2rem,7vw,8.75rem)]"
+      /* 좌측은 카피 실제 폭(auto), 나머지는 전부 이미지에 배분 */
+      className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-[clamp(2rem,4vw,5rem)]"
     >
       {/* 좌측 구현 */}
       <div>
@@ -110,14 +111,14 @@ function PageOne({ animateMode }: { animateMode: 'mount' | 'inView' }) {
 
         <motion.h1
           variants={fadeUp}
-          className="mb-6 w-max whitespace-pre-line text-[clamp(2rem,5.5vw,4.5rem)] font-extrabold leading-[1.19] tracking-tight text-dark-lava lg:mb-8"
+          className="mb-6 w-max whitespace-pre-line text-[clamp(2rem,4.6vw,4rem)] font-extrabold leading-[1.19] tracking-tight text-dark-lava lg:mb-8"
         >
           {t('landing.headline')}
         </motion.h1>
 
         <motion.p
           variants={fadeUp}
-          className="mb-7 whitespace-pre-line break-keep text-[clamp(1rem,1.6vw,1.25rem)] font-semibold leading-relaxed text-mocha lg:mb-9"
+          className="mb-7 max-w-[34rem] whitespace-pre-line break-keep text-[clamp(1rem,1.6vw,1.25rem)] font-semibold leading-relaxed text-mocha lg:mb-9"
         >
           {t('landing.lede')}
         </motion.p>
@@ -138,15 +139,15 @@ function PageOne({ animateMode }: { animateMode: 'mount' | 'inView' }) {
         </motion.ul>
       </div>
 
-      {/* 우측 지도 예시 사진 삽입 */}
+      {/* 우측 지도 예시 사진 삽입 — 원본 비율 그대로, 잘라내지 않음 */}
       <motion.div
         variants={fadeScale}
-        className="aspect-996/600 w-full overflow-hidden rounded-[7px] border-[3px] border-dark-lava"
+        className="w-full overflow-hidden rounded-[7px] border-[3px] border-dark-lava"
       >
         <img
           src="/example_map.png"
           alt={t('landing.shotAlt')}
-          className="h-full w-full object-cover"
+          className="block h-auto w-full"
         />
       </motion.div>
     </motion.div>
@@ -176,11 +177,11 @@ function PageTwo({ animateMode }: { animateMode: 'mount' | 'inView' }) {
 
         <motion.ul variants={staggerParent()} className="flex flex-col gap-4 lg:gap-5">
           {PROBLEM_IDS.map((id) => (
-            <motion.li key={id} variants={fadeLeft} className="flex items-center gap-3 lg:gap-4.5">
+            <motion.li key={id} variants={fadeLeft} className="flex items-start gap-3 lg:gap-4.5">
               <span className="grid h-[clamp(2rem,3vw,2.8125rem)] w-[clamp(2.1rem,3.2vw,3rem)] shrink-0 place-items-center rounded-[10px] bg-mocha text-lg font-normal text-milk">
                 0{id}
               </span>
-              <span className="whitespace-nowrap text-[clamp(0.95rem,1.4vw,1.1875rem)] font-semibold text-dark-lava">
+              <span className="min-w-0 flex-1 break-keep text-[clamp(0.95rem,1.4vw,1.1875rem)] font-semibold leading-snug text-dark-lava">
                 {t(`landing.problem.items.${id}`)}
               </span>
             </motion.li>
@@ -320,7 +321,7 @@ function DesktopExperience() {
         <div className="pointer-events-none absolute inset-0">
           <LandingDecor />
         </div>
-        <div className="absolute inset-0 grid place-items-center px-[clamp(1.5rem,6vw,6.8125rem)]">
+        <div className="absolute inset-0 grid place-items-center px-[clamp(1.5rem,4vw,5rem)]">
           <div className="w-full max-w-[1800px]">
             <AnimatePresence mode="wait">
               {stage === 0 ? (
@@ -356,8 +357,6 @@ function MobileExperience() {
         <PageOne animateMode="mount" />
       </div>
       <div className="relative">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-        </div>
         <PageTwo animateMode="inView" />
       </div>
     </div>

@@ -305,6 +305,9 @@ function QA() {
                 ),
               )}
             </motion.ul>
+            {answer && answer.relatedTeamNorms.length === 0 && (
+            <p className="mb-3.5 text-sm font-medium text-milk/70">관련된 팀 관행이 없어요.</p>
+            )}
 
             {/* 주의 문구 */}
             <div className="flex items-start gap-2">
