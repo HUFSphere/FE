@@ -40,6 +40,7 @@ export type WorkItem = {
   title: string
   status: string
   statusLabel: string
+  completionRate: number | null
   authorLogin: string | null
   sourceUrl: string
   sourceUpdatedAt: string | null

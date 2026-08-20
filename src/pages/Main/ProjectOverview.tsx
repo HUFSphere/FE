@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FigmaIcon from '../../components/ui/icons/FigmaIcon'
 import GithubIcon from '../../components/ui/icons/GithubIcon'
 import NotionIcon from '../../components/ui/icons/NotionIcon'
@@ -131,9 +131,13 @@ function SourceTabs({
   active: string
   onChange: (key: string) => void
 }) {
+  const uniqueSources = sources.filter(
+    (s, i) => sources.findIndex((x) => x.sourceType.toLowerCase() === s.sourceType.toLowerCase()) === i,
+  )
+
   return (
     <motion.div variants={fadeUp} className="flex gap-3">
-      {sources.map((s) => (
+      {uniqueSources.map((s) => (
         <button
           key={s.sourceId}
           onClick={() => onChange(s.sourceType.toLowerCase())}
@@ -182,6 +186,7 @@ function RecentActivityCard({ activities }: { activities: RecentActivity[] }) {
 /* 우측: 소스 상세 패널 */
 function SourceDetailPanel({ source }: { source: SourceCard }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const percent = Math.round(source.progress * 100)
 
   return (
@@ -245,7 +250,11 @@ function SourceDetailPanel({ source }: { source: SourceCard }) {
         </motion.div>
 
         <div className="flex gap-2">
-          <button className="flex-1 rounded-[10px] border border-mocha bg-taupe py-2.5 text-sm font-bold text-milk">
+          <button
+            type="button"
+            onClick={() => navigate('/qa')}
+            className="flex-1 rounded-[10px] border border-mocha bg-taupe py-2.5 text-sm font-bold text-milk"
+          >
             {t('projectStatus.askAbout', { source: source.sourceType })}
           </button>
         </div>
@@ -257,6 +266,7 @@ function SourceDetailPanel({ source }: { source: SourceCard }) {
 /* 우측: AI 추천 질문 패널 */
 function AIQuestionsPanel({ questions }: { questions: string[] }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
   return (
     <motion.div variants={fadeUp} className="rounded-[10px] bg-dark-lava p-6">
@@ -269,6 +279,8 @@ function AIQuestionsPanel({ questions }: { questions: string[] }) {
           <motion.button
             key={q}
             variants={fadeUp}
+            type="button"
+            onClick={() => navigate('/qa', { state: { presetQuestion: q } })}
             className="rounded-[10px] bg-taupe px-4 py-3 text-left text-sm font-medium text-milk transition-colors hover:bg-taupe/80"
           >
             {q}

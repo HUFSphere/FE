@@ -228,6 +228,11 @@ function FeatureList() {
                   <div className="mb-1 flex items-center gap-2.5">
                     <p className="truncate text-xl font-bold text-charcoal">{item.title}</p>
                     <StatusBadge status={toUiStatus(item.status)} />
+                    {typeof item.completionRate === 'number' && (
+                      <span className="text-sm font-semibold text-mocha">
+                        {Math.round(item.completionRate)}%
+                      </span>
+                    )}
                   </div>
                   <p className="truncate text-sm font-bold text-charcoal">{item.sourceType}</p>
                 </div>

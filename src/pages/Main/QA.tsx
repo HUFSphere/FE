@@ -1,5 +1,6 @@
 // 챗봇 Q&A 페이지
 import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { SearchIcon, WarningIcon } from '../../components/ui/icons/FeatureIcon'
@@ -57,6 +58,7 @@ function ScopeButton({
 function QA() {
   const { t } = useTranslation()
   const workspaceId = getWorkspaceId()
+  const location = useLocation()
 
   /* 범위 선택 — 개별 선택이 비면 '프로젝트 전체'가 켜지도록 */
   const [scopeItems, setScopeItems] = useState<WorkItem[]>([])
@@ -94,6 +96,14 @@ function QA() {
       .then((me) => setNativeLang(me.nativeLang))
       .catch(() => {})
   }, [])
+
+  /* 대시보드의 AI 추천 질문 카드에서 넘어온 경우 질문칸에 미리 채워넣음 */
+  useEffect(() => {
+    const state = location.state as { presetQuestion?: string } | null
+    if (state?.presetQuestion) {
+      setQuestion(state.presetQuestion)
+    }
+  }, [location.state])
 
   /* 드롭다운 바깥 클릭 시 닫기 */
   useEffect(() => {
@@ -234,7 +244,7 @@ function QA() {
           <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-oat px-5 pt-4.5 pb-5.5">
             <CardTitle>{t('qa.answer')}</CardTitle>
 
-            <div className="mb-4 min-h-79.5 flex-1 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-base font-medium leading-relaxed whitespace-pre-line text-dark-lava">
+            <div className="mb-4 h-79.5 overflow-y-auto rounded-[9px] border-2 border-taupe bg-milk p-5 text-base font-medium leading-relaxed whitespace-pre-line text-dark-lava">
               {answer?.answer || (
                 <span className="text-taupe">{t('qa.answerPlaceholder')}</span>
               )}
@@ -265,31 +275,36 @@ function QA() {
             <h2 className="mb-3 text-xl font-bold text-milk">{t('qa.practices')}</h2>
 
             <motion.ul variants={staggerParent(0.08)} className="mb-3.5 flex flex-col gap-2.5">
-            {(answer?.relatedTeamNorms ?? []).map((p) => (
-              <motion.li
-                key={p.id}
-                variants={fadeUp}
-                className="relative rounded-lg bg-milk px-4.5 py-3.5"
-                onMouseEnter={() => setHoveredNormId(p.id)}
-                onMouseLeave={() => setHoveredNormId((prev) => (prev === p.id ? null : prev))}
-              >
-                  <p className="mb-1.5 text-sm font-semibold whitespace-pre-line text-charcoal">
-                    {p.content}
-                  </p>
-                <span className="text-sm text-mocha underline underline-offset-3 decoration-dotted">
-                  {t('qa.viewEvidence')}
-                </span>
-                {hoveredNormId === p.id && (
-                  <div className="absolute top-full left-0 z-10 mt-1.5 w-full rounded-lg bg-charcoal px-3.5 py-2.5 text-sm font-medium text-milk shadow-lg">
-                    {p.reason}
-                  </div>
-                )}
-                </motion.li>
-              ))}
+              {Array.from({ length: 3 }, (_, i) => answer?.relatedTeamNorms[i] ?? null).map((p, i) =>
+                p ? (
+                  <motion.li
+                    key={p.id}
+                    variants={fadeUp}
+                    className="relative rounded-lg bg-milk px-4.5 py-3.5"
+                    onMouseEnter={() => setHoveredNormId(p.id)}
+                    onMouseLeave={() => setHoveredNormId((prev) => (prev === p.id ? null : prev))}
+                  >
+                    <p className="mb-1.5 text-sm font-semibold whitespace-pre-line text-charcoal">
+                      {p.content}
+                    </p>
+                    <span className="text-sm text-mocha underline underline-offset-3 decoration-dotted">
+                      {t('qa.viewEvidence')}
+                    </span>
+                    {hoveredNormId === p.id && (
+                      <div className="absolute top-full left-0 z-10 mt-1.5 w-full rounded-lg bg-charcoal px-3.5 py-2.5 text-sm font-medium text-milk shadow-lg">
+                        {p.reason}
+                      </div>
+                    )}
+                  </motion.li>
+                ) : (
+                  <motion.li
+                    key={`empty-${i}`}
+                    variants={fadeUp}
+                    className="h-14.5 rounded-lg border-2 border-dashed border-milk/40 bg-transparent"
+                  />
+                ),
+              )}
             </motion.ul>
-            {answer && answer.relatedTeamNorms.length === 0 && (
-            <p className="mb-3.5 text-sm font-medium text-milk/70">관련된 팀 관행이 없어요.</p>
-            )}
 
             {/* 주의 문구 */}
             <div className="flex items-start gap-2">
@@ -305,23 +320,31 @@ function QA() {
           </motion.section>
           
           {/* 후속 질문 제안 */}
-          <motion.section variants={fadeUp} className="flex flex-1 flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
+          <motion.section variants={fadeUp} className="flex flex-col rounded-[10px] bg-almond-milk px-6.5 pt-5 pb-6">
             <h2 className="mb-7 text-xl font-semibold text-dark-lava">{t('qa.suggestions')}</h2>
             <motion.ul
               variants={staggerParent(0.06)}
               className={`flex w-full ${SUGGESTION_WIDTH} flex-col gap-2.5`}
             >
-              {(answer?.followUpQuestions ?? []).map((s, i) => (
-                <motion.li key={i} variants={fadeUp}>
-                  <button
-                    type="button"
-                    onClick={() => setQuestion(s)}
-                    className="h-13 w-full rounded-lg bg-milk px-4 text-sm font-semibold text-mocha hover:bg-oat"
-                  >
-                    {s}
-                  </button>
-                </motion.li>
-              ))}
+              {Array.from({ length: 4 }, (_, i) => answer?.followUpQuestions[i] ?? null).map((s, i) =>
+                s ? (
+                  <motion.li key={i} variants={fadeUp}>
+                    <button
+                      type="button"
+                      onClick={() => setQuestion(s)}
+                      className="h-13 w-full rounded-lg bg-milk px-4 text-sm font-semibold text-mocha hover:bg-oat"
+                    >
+                      {s}
+                    </button>
+                  </motion.li>
+                ) : (
+                  <motion.li
+                    key={`empty-${i}`}
+                    variants={fadeUp}
+                    className="h-13 w-full rounded-lg border-2 border-dashed border-taupe/40 bg-transparent"
+                  />
+                ),
+              )}
             </motion.ul>
           </motion.section>
         </div>

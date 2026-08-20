@@ -106,11 +106,12 @@ function Settings() {
 
  /* AI 답변 톤 설정 */
  const [tonePresets, setTonePresets] = useState<TonePreset[]>([])
- const [presetKeys, setPresetKeys] = useState<PresetKey[]>(['beginner'])
+ const [presetKeys, setPresetKeys] = useState<PresetKey[]>([])
  const [customText, setCustomText] = useState('')
  const [isSavingTone, setIsSavingTone] = useState(false)
  const [toneError, setToneError] = useState<string | null>(null)
  const [saved, setSaved] = useState(false)
+ const [activePreset, setActivePreset] = useState<PresetKey | null>(null)
 
  /* 초기 톤 설정 불러오기 */
  useEffect(() => {
@@ -118,6 +119,7 @@ function Settings() {
      .then((data) => {
        setPresetKeys(data.presetKeys)
        setCustomText(data.customText ?? '')
+       setActivePreset(data.presetKeys[0] ?? null)
      })
      .catch(() => {})
  }, [])
@@ -131,17 +133,13 @@ function Settings() {
  }, [nativeLang])
 
  const togglePreset = (key: PresetKey) => {
-  // 라디오형 단일 선택. "프리셋 없음"은 백엔드가 presetKeys 최소 1개 제약을
-  // 풀어주면 그때 추가. 지금은 항상 정확히 1개를 유지한다.
-   setPresetKeys([key])
+   const preset = tonePresets.find((p) => p.presetKey === key)
+   setCustomText(preset?.description ?? '')
+   setPresetKeys([])
+   setActivePreset(key)
    setSaved(false)
  }
-
  const save = async () => {
-   if (presetKeys.length === 0) {
-     setToneError('프리셋을 1개 이상 선택해주세요.')
-     return
-   }
    setIsSavingTone(true)
    setToneError(null)
    try {
@@ -206,6 +204,8 @@ function Settings() {
           value={customText}
           onChange={(e) => {
             setCustomText(e.target.value)
+            setPresetKeys([])
+            setActivePreset(null)
             setSaved(false)
           }}
           maxLength={500}
@@ -218,7 +218,7 @@ function Settings() {
         <motion.ul variants={staggerParent(0.05)} className="flex flex-wrap gap-2.75">
           {tonePresets.map((p) => (
             <motion.li key={p.presetKey} variants={fadeUp}>
-              <PresetCheckbox checked={presetKeys.includes(p.presetKey)} onChange={() => togglePreset(p.presetKey)}>
+              <PresetCheckbox checked={activePreset === p.presetKey} onChange={() => togglePreset(p.presetKey)}>
                 {p.label}
               </PresetCheckbox>
             </motion.li>

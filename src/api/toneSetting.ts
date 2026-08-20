@@ -1,11 +1,12 @@
 import { apiRequest } from './client'
 import type { NativeLang } from './auth'
 
-export type PresetKey = 'beginner' | 'intermediate' | 'expert'
+export type PresetKey = 'concise' | 'detailed' | 'friendly'
 
 export type TonePreset = {
   presetKey: PresetKey
   label: string
+  description: string
 }
 
 export type ToneSetting = {
@@ -20,7 +21,7 @@ export async function getTonePresets(lang?: NativeLang) {
   return apiRequest<TonePreset[]>(`/api/v1/tone-presets${query}`, { method: 'GET' })
 }
 
-/* 저장된 설정이 없으면 기본값(beginner, customText null)을 에러 없이 반환 */
+/* 저장된 설정이 없으면 기본값(presetKeys: [], customText null — "선택 안 함")을 에러 없이 반환 */
 export async function getToneSetting() {
   return apiRequest<ToneSetting>('/api/v1/tone-setting', { method: 'GET' })
 }
