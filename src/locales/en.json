@@ -30,12 +30,12 @@
   },
   "landing": {
     "headline": "Your team’s scattered records,\ngathered into\none feature map",
-    "lede": "LinkBoard groups the work, decisions, and designs scattered across GitHub, Notion, and Figma into a single map, feature by feature.",
+    "lede": "LinkBoard groups the work, decisions, and designs scattered\nacross GitHub, Notion, and Figma into a single map, feature by feature.",
     "shotAlt": "Project map screen",
     "sources": {
-      "github": "Why the code → the map’s backbone",
+      "github": "Why the code, how far along → the map’s backbone",
       "notion": "Why the decision → meetings & requirements",
-      "figma": "Why the screen → frame comments"
+      "figma": "Why the screen → design files"
     },
     "problem": {
       "kicker": "Problem · Solution",
@@ -43,7 +43,7 @@
       "items": {
         "1": "Code lives in GitHub, decisions in Notion, screen intent in Figma. Understanding one feature means switching windows three times.",
         "2": "Only the people who were there know that “this PR came out of that meeting.”",
-        "3": "“Two reviewers, no Friday deploys” — rules nobody wrote down, yet everybody follows."
+        "3": "Anyone who joined recently has to start by asking how far along each feature actually is."
       }
     },
     "features": {
@@ -59,8 +59,8 @@
       },
       "2": {
         "kicker": "Feature 02",
-        "title": "Answers that cite their source",
-        "desc": "Answers come from your team’s actual records, with links to the originals.\nNo source, no answer.",
+        "title": "Q&A grounded in your records",
+        "desc": "Answers come from your team’s actual records.\nYou can see which record each answer came from.",
         "question": "Q) Why is coupon support on hold?",
         "rows": {
           "github": "#158 · blocked",
@@ -69,12 +69,12 @@
       },
       "3": {
         "kicker": "Feature 03",
-        "title": "Team norms, confirmed by the lead",
-        "desc": "Undocumented norms are inferred from PR and review patterns and proposed as candidates.\nOnly what the lead confirms becomes visible to the team.",
+        "title": "Progress you don’t have to ask about",
+        "desc": "Status for each feature is collected from the sources automatically.\nWhat’s blocked right now shows up on one screen.",
         "rows": {
-          "1": "Usually two reviewers assigned",
-          "2": "Commit prefix feat:",
-          "3": "Avoid Friday deploys"
+          "1": "Payment API integration",
+          "2": "Coupon support",
+          "3": "Delivery tracking"
         }
       }
     },
@@ -84,11 +84,11 @@
       "roles": {
         "member": {
           "title": "Member",
-          "desc": "Browse the map · sourced Q&A · confirmed norms"
+          "desc": "Browse the map · see feature context · ask grounded questions"
         },
         "leader": {
           "title": "Leader",
-          "desc": "Confirm, edit, delete norms · manual links · source management"
+          "desc": "Connect sources · invite members · manage the workspace"
         }
       },
       "button": "Get started"
