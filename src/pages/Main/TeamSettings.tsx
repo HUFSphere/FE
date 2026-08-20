@@ -37,7 +37,7 @@ const staggerParent = (stagger = 0.12, delay = 0) => ({
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 })
 
-/* 화면에 항상 보여줄 소스 3종 — 연동 여부와 무관하게 행을 유지합니다 */
+/* 화면에 항상 보여줄 소스 3종 — 연동 여부와 무관하게 행을 유지*/ 
 const SOURCE_ROWS: { source: SourceKey; label: string }[] = [
   { source: 'github', label: 'Github' },
   { source: 'figma', label: 'Figma' },
@@ -333,6 +333,10 @@ function TeamSettings() {
       <motion.section variants={fadeUp} className="rounded-[10px] bg-almond-milk px-6 pt-3.5 pb-6">
         <div className="mb-4">
           <CardTitle>{t('teamSettings.connections')}</CardTitle>
+          {/* 연결 변경은 팀장 전용 — 팀원에게는 이유를 안내 */}
+          {myRole === 'member' && (
+            <p className="mt-1 text-sm font-medium text-taupe">{t('teamSettings.leaderOnly')}</p>
+          )}
         </div>
 
         <motion.ul variants={staggerParent(0.08)} className="flex flex-col gap-3">
@@ -357,7 +361,13 @@ function TeamSettings() {
 
                 <ConnectionBadge
                   connected={connected}
-                  onClick={connected ? () => setPending(row) : () => setConnecting(row)}
+                  onClick={
+                    myRole !== 'leader'
+                      ? undefined
+                      : connected
+                        ? () => setPending(row)
+                        : () => setConnecting(row)
+                  }
                 >
                   {connected ? t('teamSettings.connected') : t('teamSettings.notConnected')}
                 </ConnectionBadge>
