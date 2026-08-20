@@ -18,7 +18,6 @@ function Header() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [isNotificationLoading, setIsNotificationLoading] = useState(false)
 
   const handleToggleNotifications = () => {
@@ -29,7 +28,6 @@ function Header() {
       getNotifications(4)
         .then((res) => {
           setNotifications(res.notifications)
-          setUnreadCount(res.unreadCount)
         })
         .catch(() => setNotifications([]))
         .finally(() => setIsNotificationLoading(false))
@@ -40,7 +38,6 @@ function Header() {
     markNotificationAsRead(id)
       .then(() => {
         setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
-        setUnreadCount((prev) => Math.max(0, prev - 1))
       })
       .catch(() => {})
   }
